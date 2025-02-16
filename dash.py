@@ -16,8 +16,8 @@ mask2former_model_path = "mask2former_best.pth"
 urllib.request.urlretrieve(fpn_url, fpn_model_path)
 urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
 
-fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
-mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"))
+fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"), weights_only=False)
+mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"), weights_only=False)
 
 st.write("Modèles chargés avec succès !")
 
