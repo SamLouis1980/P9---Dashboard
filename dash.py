@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
+torch._C._init_names()  # Force l'initialisation des classes torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
@@ -9,6 +10,7 @@ import urllib.request
 from PIL import Image
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
+
 
 # Définition du modèle FPN
 class FPN_Segmenter(nn.Module):
