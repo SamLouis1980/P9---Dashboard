@@ -85,11 +85,13 @@ if page == "EDA":
     
     # Affichage d'exemples d'images
     st.header("Exemples d'Images et Masques")
-    sample_image_path = os.path.join(IMAGES_PATH, "train/aachen/aachen_000000_000019_leftImg8bit.png")
-    sample_mask_path = os.path.join(MASKS_PATH, "train/aachen/aachen_000000_000019_gtFine_color.png")
-    
+
+    # Définition des URLs des images et masques sur GCS
+    sample_image_url = "https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/lindau_000000_000019_leftImg8bit.png"
+    sample_mask_url = "https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/lindau_000000_000019_gtFine_color.png"
+
     col1, col2 = st.columns(2)
     with col1:
-        st.image(Image.open(sample_image_path), caption="Image Originale", use_column_width=True)
+        st.image(sample_image_url, caption="Image Originale", use_column_width=True)
     with col2:
-        st.image(Image.open(sample_mask_path), caption="Masque Correspondant", use_column_width=True)
+        st.image(sample_mask_url, caption="Masque Correspondant", use_column_width=True)
