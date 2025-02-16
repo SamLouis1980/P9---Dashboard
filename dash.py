@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 import os
 from PIL import Image
 
-# Définition du chemin des données
-DATASET_PATH = "/content/drive/My Drive/projet 9/cityscapes/"
+# Définition des chemins des données
+IMAGES_PATH = "/content/drive/My Drive/projet 8/P8_Cityscapes_leftImg8bit_trainvaltest/leftImg8bit"
+MASKS_PATH = "/content/drive/My Drive/projet 8/P8_Cityscapes_gtFine_trainvaltest/gtFine"
 
 # Création de la sidebar
 st.sidebar.title("Menu")
@@ -71,11 +72,11 @@ if page == "EDA":
     
     # Affichage d'exemples d'images
     st.header("Exemples d'Images et Masques")
-    img_path = os.path.join(DATASET_PATH, "train/image_sample.png")  # Remplace par un chemin valide
-    mask_path = os.path.join(DATASET_PATH, "train/mask_sample.png")
+    sample_image_path = os.path.join(IMAGES_PATH, "train/aachen/aachen_000000_000019_leftImg8bit.png")
+    sample_mask_path = os.path.join(MASKS_PATH, "train/aachen/aachen_000000_000019_gtFine_color.png")
     
     col1, col2 = st.columns(2)
     with col1:
-        st.image(Image.open(img_path), caption="Image Originale", use_column_width=True)
+        st.image(Image.open(sample_image_path), caption="Image Originale", use_column_width=True)
     with col2:
-        st.image(Image.open(mask_path), caption="Masque Correspondant", use_column_width=True)
+        st.image(Image.open(sample_mask_path), caption="Masque Correspondant", use_column_width=True)
