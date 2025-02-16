@@ -4,3 +4,4 @@ matplotlib
 pillow
 torch
 torchvision
+transformers
