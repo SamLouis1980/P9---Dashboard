@@ -2,8 +2,12 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import torch
+import torchvision
+import torch.nn as nn
+import torch.nn.functional as F
 import urllib.request
 from PIL import Image
+
 
 # Définition des URLs des modèles sur GCS
 fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
