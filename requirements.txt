@@ -2,6 +2,6 @@ streamlit
 pandas
 matplotlib
 pillow
-torch==2.5.1+cu124
-torchvision==0.20.1+cu124
+torch==2.5.1
+torchvision==0.20.1
 transformers
