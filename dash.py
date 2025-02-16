@@ -25,6 +25,27 @@ mask2former_model = torch.load(mask2former_model_path, map_location=torch.device
 
 st.write("Modèles chargés avec succès !")
 
+# Définition du modèle FPN
+class FPN_Segmenter(nn.Module):
+    def __init__(self, num_classes=8):
+        super(FPN_Segmenter, self).__init__()
+
+        # Charger le backbone FPN pré-entraîné sur COCO
+        self.fpn_backbone = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="COCO_V1").backbone
+
+        # Tête de segmentation : 1x1 conv pour réduire les canaux
+        self.final_conv = nn.Conv2d(256, num_classes, kernel_size=1)
+
+    def forward(self, x):
+        """Passe avant du modèle FPN + segmentation"""
+        fpn_features = self.fpn_backbone(x)
+        p2 = fpn_features['0']  # Prendre la feature map P2
+        output = self.final_conv(p2)
+
+        # Upsample à la taille de l'image d'entrée (512x512)
+        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+        return output
+
 # Création de la sidebar
 st.sidebar.title("Menu")
 page = st.sidebar.radio("Aller à :", [
