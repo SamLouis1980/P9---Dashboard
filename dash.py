@@ -8,24 +8,6 @@ import torch.nn.functional as F
 import urllib.request
 from PIL import Image
 
-
-# Définition des URLs des modèles sur GCS
-fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
-mask2former_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_best.pth"
-
-# Téléchargement et chargement des modèles depuis GCS
-fpn_model_path = "fpn_best.pth"
-mask2former_model_path = "mask2former_best.pth"
-
-urllib.request.urlretrieve(fpn_url, fpn_model_path)
-urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
-
-fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"), weights_only=False)
-fpn_model.eval()  # Met le modèle en mode évaluation
-mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"), weights_only=False)
-
-st.write("Modèles chargés avec succès !")
-
 # Définition du modèle FPN
 class FPN_Segmenter(nn.Module):
     def __init__(self, num_classes=8):
@@ -46,6 +28,23 @@ class FPN_Segmenter(nn.Module):
         # Upsample à la taille de l'image d'entrée (512x512)
         output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
         return output
+
+# Définition des URLs des modèles sur GCS
+fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
+mask2former_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_best.pth"
+
+# Téléchargement et chargement des modèles depuis GCS
+fpn_model_path = "fpn_best.pth"
+mask2former_model_path = "mask2former_best.pth"
+
+urllib.request.urlretrieve(fpn_url, fpn_model_path)
+urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
+
+fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"), weights_only=False)
+fpn_model.eval()  # Met le modèle en mode évaluation
+mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"), weights_only=False)
+
+st.write("Modèles chargés avec succès !")
 
 # Création de la sidebar
 st.sidebar.title("Menu")
