@@ -1,12 +1,25 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
-import os
+import torch
+import urllib.request
 from PIL import Image
 
-# Définition des chemins des données
-IMAGES_PATH = "/content/drive/My Drive/projet 8/P8_Cityscapes_leftImg8bit_trainvaltest/leftImg8bit"
-MASKS_PATH = "/content/drive/My Drive/projet 8/P8_Cityscapes_gtFine_trainvaltest/gtFine"
+# Définition des URLs des modèles sur GCS
+fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
+mask2former_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_best.pth"
+
+# Téléchargement et chargement des modèles depuis GCS
+fpn_model_path = "fpn_best.pth"
+mask2former_model_path = "mask2former_best.pth"
+
+urllib.request.urlretrieve(fpn_url, fpn_model_path)
+urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
+
+fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
+mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"))
+
+st.write("Modèles chargés avec succès !")
 
 # Création de la sidebar
 st.sidebar.title("Menu")
