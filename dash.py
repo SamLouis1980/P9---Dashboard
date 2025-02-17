@@ -11,6 +11,7 @@ from PIL import Image
 import numpy as np
 import warnings
 import plotly.graph_objects as go
+import gcsfs
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
