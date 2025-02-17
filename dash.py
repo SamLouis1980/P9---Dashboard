@@ -16,7 +16,7 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLA
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
-# 🔹 Mise en cache des modèles pour éviter les rechargements
+# 🔹 Mise en cache des modèles pour éviter les rechargements inutiles
 @st.cache_resource
 def load_models():
     fpn_model_path = "fpn_best.pth"
@@ -46,16 +46,30 @@ st.write("Modèles chargés avec succès")
 st.sidebar.title("Menu")
 page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
-# 🔹 Chargement des images depuis GCS (mis en cache)
+# 🔹 Récupération des images et masques depuis GCS (mise en cache)
 @st.cache_data
 def get_available_images():
+    """Liste les images et masques disponibles dans le bucket GCS."""
     fs = gcsfs.GCSFileSystem()
     image_files = fs.ls("p9-dashboard-storage/Dataset/images")
-    
+
     available_images = [img.split("/")[-1] for img in image_files if img.endswith(".png")]
     return available_images
 
 available_images = get_available_images()
+
+# 🔹 Fonction de téléchargement d’image unique
+@st.cache_resource
+def download_image_from_gcs(image_name):
+    """Télécharge une image depuis GCS si elle n'est pas déjà en local."""
+    local_path = f"./{image_name}"
+    gcs_path = f"p9-dashboard-storage/Dataset/images/{image_name}"
+
+    if not os.path.exists(local_path):
+        fs = gcsfs.GCSFileSystem()
+        fs.get(gcs_path, local_path)
+
+    return local_path
 
 # 🔹 Page EDA
 if page == "EDA":
@@ -123,13 +137,14 @@ if page == "Test des modèles":
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
 
-    image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}"
+    # 🔹 Téléchargement local de l’image
+    image_path = download_image_from_gcs(image_choice)
+    image = Image.open(image_path).convert("RGB")
+    st.image(image, caption="Image d'entrée", use_column_width=True)
 
-    try:
-        image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
-        st.image(image, caption="Image d'entrée", use_column_width=True)
-    except Exception as e:
-        st.error(f"⚠ Erreur lors du chargement de l'image : {e}")
+    # 🔹 Chargement du masque réel correspondant
+    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
+    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_filename}"
 
     input_size = (512, 512)
     image_resized, original_size = preprocess_image(image, input_size)
@@ -137,7 +152,7 @@ if page == "Test des modèles":
 
     output = fpn_model(tensor_image) if model_choice == "FPN" else mask2former_model(tensor_image)
     mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
-
     mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
     st.image(mask_colorized, caption="Masque segmenté", use_column_width=True)
+    st.image(Image.open(urllib.request.urlopen(mask_url)).convert("RGB"), caption="Masque réel", use_column_width=True)
