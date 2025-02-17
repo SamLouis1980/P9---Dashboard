@@ -48,19 +48,26 @@ page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test d
 
 # 🔹 Récupération des images et masques depuis GCS (mise en cache)
 @st.cache_data
-def get_available_images():
-    """Charge une liste d'images à partir d'un fichier CSV stocké sur GCS."""
-    csv_url = "https://storage.googleapis.com/p9-dashboard-storage/image_list.csv"
-    
-    try:
-        df = pd.read_csv(csv_url)
-        available_images = df["image_name"].tolist()
-        return available_images
-    except Exception as e:
-        st.error(f"❌ Erreur lors du chargement de la liste d'images : {e}")
-        return []
+def get_available_images_and_masks():
+    """Charge les listes d'images et de masques à partir de fichiers CSV stockés sur GCS."""
+    image_csv_url = "https://storage.googleapis.com/p9-dashboard-storage/image_list.csv"
+    mask_csv_url = "https://storage.googleapis.com/p9-dashboard-storage/mask_list.csv"
 
-available_images = get_available_images()
+    try:
+        # Charger les images
+        df_images = pd.read_csv(image_csv_url)
+        available_images = df_images["image_name"].tolist()
+
+        # Charger les masques
+        df_masks = pd.read_csv(mask_csv_url)
+        available_masks = df_masks["mask_name"].tolist()
+
+        return available_images, available_masks
+    except Exception as e:
+        st.error(f"❌ Erreur lors du chargement des fichiers CSV : {e}")
+        return [], []
+
+available_images, available_masks = get_available_images_and_masks()
 
 # 🔹 Fonction de téléchargement d’image unique
 @st.cache_resource
