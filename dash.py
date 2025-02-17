@@ -12,21 +12,9 @@ import numpy as np
 import warnings
 import plotly.graph_objects as go
 import gcsfs
-from utils import preprocess_image, resize_and_colorize_mask
+from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLASS_COLORS
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
-
-# 🔹 Définition de la palette de couleurs Cityscapes
-CLASS_COLORS = {
-    0: (0, 0, 0),        # Void
-    1: (128, 64, 128),   # Flat
-    2: (70, 70, 70),     # Construction
-    3: (153, 153, 153),  # Object
-    4: (107, 142, 35),   # Nature
-    5: (70, 130, 180),   # Sky
-    6: (220, 20, 60),    # Human
-    7: (0, 0, 142)       # Vehicle
-}
 
 # 🔹 Mise en cache des modèles pour éviter les rechargements
 @st.cache_resource
