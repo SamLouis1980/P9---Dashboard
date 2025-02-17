@@ -12,6 +12,7 @@ import numpy as np
 import warnings
 import plotly.graph_objects as go
 import gcsfs
+from utils import preprocess_image, resize_and_colorize_mask
 
 # Import des fonctions utilitaires
 from utils import preprocess_image, resize_and_colorize_mask
