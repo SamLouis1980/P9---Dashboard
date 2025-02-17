@@ -14,9 +14,6 @@ import plotly.graph_objects as go
 import gcsfs
 from utils import preprocess_image, resize_and_colorize_mask
 
-# Import des fonctions utilitaires
-from utils import preprocess_image, resize_and_colorize_mask
-
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
 # 🔹 Définition de la palette de couleurs Cityscapes
@@ -31,21 +28,7 @@ CLASS_COLORS = {
     7: (0, 0, 142)       # Vehicle
 }
 
-# 🔹 Définition du modèle FPN
-class FPN_Segmenter(nn.Module):
-    def __init__(self, num_classes=8):
-        super(FPN_Segmenter, self).__init__()
-        self.fpn_backbone = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="COCO_V1").backbone
-        self.final_conv = nn.Conv2d(256, num_classes, kernel_size=1)
-
-    def forward(self, x):
-        fpn_features = self.fpn_backbone(x)
-        p2 = fpn_features['0']
-        output = self.final_conv(p2)
-        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
-        return output
-
-# 🔹 Mise en cache des modèles pour éviter les chargements répétés
+# 🔹 Mise en cache des modèles pour éviter les rechargements
 @st.cache_resource
 def load_models():
     fpn_model_path = "fpn_best.pth"
@@ -75,29 +58,27 @@ st.write("Modèles chargés avec succès")
 st.sidebar.title("Menu")
 page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
-# 🔹 Chargement et mise en cache des images disponibles sur GCS
+# 🔹 Chargement des images depuis GCS (mis en cache)
 @st.cache_data
 def get_available_images():
     fs = gcsfs.GCSFileSystem()
     image_files = fs.ls("p9-dashboard-storage/Dataset/images")
-    mask_files = fs.ls("p9-dashboard-storage/Dataset/masks")
-
+    
     available_images = [img.split("/")[-1] for img in image_files if img.endswith(".png")]
-    available_masks = [msk.split("/")[-1] for msk in mask_files if msk.endswith(".png")]
+    return available_images
 
-    return available_images, available_masks
-
-available_images, available_masks = get_available_images()
+available_images = get_available_images()
 
 # 🔹 Page EDA
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
+
+    # 🔹 Structure du dataset
     st.header("Structure des Dossiers et Fichiers")
-    
     folders = {"Images": ["train", "val", "test"], "Masques": ["train", "val", "test"]}
     for key, values in folders.items():
         st.write(f"**{key}**: {', '.join(values)}")
-    
+
     dataset_info = {
         "Ensemble": ["Train", "Validation", "Test"],
         "Images": [2975, 500, 1525],
@@ -128,9 +109,17 @@ if page == "EDA":
     st.pyplot(fig)
 
 # 🔹 Page Résultats des modèles
+@st.cache_data
+def load_results():
+    fpn_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/fpn_results.csv")
+    mask2former_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/mask2former_results.csv")
+    return fpn_results, mask2former_results
+
+fpn_results, mask2former_results = load_results()
+
 if page == "Résultats des modèles":
     st.title("Analyse des Résultats des Modèles")
-    
+
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val Loss"], mode='lines', name='FPN - Validation Loss'))
     fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val IoU"], mode='lines', name='FPN - Validation IoU Score'))
@@ -142,16 +131,17 @@ if page == "Résultats des modèles":
 # 🔹 Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
-    
+
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
-    
-    image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}"
-    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
-    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_filename}"
 
-    image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
-    st.image(image, caption="Image d'entrée")
+    image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}"
+
+    try:
+        image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
+        st.image(image, caption="Image d'entrée", use_column_width=True)
+    except Exception as e:
+        st.error(f"⚠ Erreur lors du chargement de l'image : {e}")
 
     input_size = (512, 512)
     image_resized, original_size = preprocess_image(image, input_size)
@@ -159,7 +149,7 @@ if page == "Test des modèles":
 
     output = fpn_model(tensor_image) if model_choice == "FPN" else mask2former_model(tensor_image)
     mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
+
     mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
-    st.image(mask_colorized, caption="Masque segmenté")
-    st.image(Image.open(urllib.request.urlopen(mask_url)).convert("RGB"), caption="Masque réel")
+    st.image(mask_colorized, caption="Masque segmenté", use_column_width=True)
