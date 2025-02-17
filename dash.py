@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import os
 import torch
 import torchvision
 import torch.nn as nn
@@ -29,6 +30,13 @@ class FPN_Segmenter(nn.Module):
 # Définition des URLs des modèles sur GCS
 fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
 mask2former_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_best.pth"
+
+# Vérification de la taille de mask2former.pth sur Streamlit Cloud
+if os.path.exists(mask2former_model_path):
+    print(f"Taille du fichier Mask2Former sur Streamlit: {os.path.getsize(mask2former_model_path)} octets")
+else:
+    print("Erreur : Le fichier Mask2Former ne s'est pas téléchargé correctement.")
+
 
 # Téléchargement et chargement des modèles depuis GCS
 fpn_model_path = "fpn_best.pth"
