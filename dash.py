@@ -31,20 +31,21 @@ class FPN_Segmenter(nn.Module):
 fpn_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_best.pth"
 mask2former_url = "https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_best.pth"
 
-# Vérification de la taille de mask2former.pth sur Streamlit Cloud
+# Définition du chemin local des modèles
+fpn_model_path = "fpn_best.pth"
+mask2former_model_path = "mask2former_best.pth"
+
+# Téléchargement des modèles depuis GCS
+urllib.request.urlretrieve(fpn_url, fpn_model_path)
+urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
+
+# Vérification de la taille de mask2former.pth après le téléchargement
 if os.path.exists(mask2former_model_path):
     print(f"Taille du fichier Mask2Former sur Streamlit: {os.path.getsize(mask2former_model_path)} octets")
 else:
     print("Erreur : Le fichier Mask2Former ne s'est pas téléchargé correctement.")
 
-
-# Téléchargement et chargement des modèles depuis GCS
-fpn_model_path = "fpn_best.pth"
-mask2former_model_path = "mask2former_best.pth"
-
-urllib.request.urlretrieve(fpn_url, fpn_model_path)
-urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
-
+# Chargement des modèles
 fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"), weights_only=False)
 fpn_model.eval()
 mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"), weights_only=False)
