@@ -49,12 +49,16 @@ page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test d
 # 🔹 Récupération des images et masques depuis GCS (mise en cache)
 @st.cache_data
 def get_available_images():
-    """Liste les images et masques disponibles dans le bucket GCS."""
-    fs = gcsfs.GCSFileSystem()
-    image_files = fs.ls("p9-dashboard-storage/Dataset/images")
-
-    available_images = [img.split("/")[-1] for img in image_files if img.endswith(".png")]
-    return available_images
+    """Charge une liste d'images à partir d'un fichier CSV stocké sur GCS."""
+    csv_url = "https://storage.googleapis.com/p9-dashboard-storage/image_list.csv"
+    
+    try:
+        df = pd.read_csv(csv_url)
+        available_images = df["image_name"].tolist()
+        return available_images
+    except Exception as e:
+        st.error(f"❌ Erreur lors du chargement de la liste d'images : {e}")
+        return []
 
 available_images = get_available_images()
 
