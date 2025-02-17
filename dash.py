@@ -85,7 +85,7 @@ page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test d
 # 📊 Page EDA
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
-    
+
     st.header("Structure des Dossiers et Fichiers")
     folders = {"Images": ["train", "val", "test"], "Masques": ["train", "val", "test"]}
     for key, values in folders.items():
@@ -100,15 +100,21 @@ if page == "EDA":
     st.table(df_info)
 
     st.header("Distribution des Classes dans les Masques")
-    class_distribution = {
-        "ID": [7, 11, 21, 26, 8, 1, 23, 3, 4, 2, 6, 17, 24, 22, 13, 9, 12, 20, 33, 15],
-        "Classe": ["road", "fence", "truck", "void", "sidewalk", "ego vehicle", "train", "out of roi", "static", "rectification border",
-                    "ground", "sky", "motorcycle", "bus", "traffic light", "building", "pole", "car", "void", "vegetation"],
-        "Pixels": [2036416525, 1260636120, 879783988, 386328286, 336090793, 286002726, 221979646, 94111150, 83752079, 81359604,
-                    75629728, 67789506, 67326424, 63949536, 48454166, 39065130, 36199498, 30448193, 22861233, 17860177]
-    }
-    df_classes = pd.DataFrame(class_distribution)
+    df_classes = pd.DataFrame({
+        "Classe": ["road", "sidewalk", "building", "wall", "fence", "pole", "traffic light", "traffic sign",
+                   "vegetation", "terrain", "sky", "person", "rider", "car", "truck", "bus", "train", "motorcycle", "bicycle"],
+        "Pixels": [2036416525, 1260636120, 879783988, 386328286, 336090793, 286002726, 221979646, 94111150, 83752079,
+                   81359604, 75629728, 67789506, 67326424, 63949536, 48454166, 39065130, 36199498, 30448193, 22861233]
+    })
     st.table(df_classes)
+
+    fig, ax = plt.subplots()
+    ax.bar(df_classes["Classe"], df_classes["Pixels"], color="skyblue")
+    plt.xticks(rotation=90)
+    plt.xlabel("Classes")
+    plt.ylabel("Nombre de Pixels")
+    plt.title("Répartition des Pixels par Classe")
+    st.pyplot(fig)
 
 # 📈 Page Résultats des modèles
 if page == "Résultats des modèles":
@@ -135,7 +141,8 @@ if page == "Résultats des modèles":
 if page == "Test des modèles":
     st.title("Tester les modèles de segmentation")
 
-    image_choices = ["lindau_000000_000019_leftImg8bit.png"]
+    model_choice = st.selectbox("Choisissez un modèle :", ["FPN", "Mask2Former"])
+    image_choices = [f"lindau_000000_0000{i}_leftImg8bit.png" for i in range(10, 30)]
     image_name = st.selectbox("Choisissez une image :", image_choices)
 
     image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_name}"
@@ -143,14 +150,12 @@ if page == "Test des modèles":
 
     processed_image, original_size = preprocess_image(image)
 
+    model = fpn_model if model_choice == "FPN" else mask2former_model
     with torch.no_grad():
-        pred_mask = fpn_model(torch.tensor(processed_image).permute(0, 3, 1, 2).float()).squeeze()
+        pred_mask = model(torch.tensor(processed_image).permute(0, 3, 1, 2).float()).squeeze()
         pred_mask = torch.argmax(pred_mask, dim=0).cpu().numpy()
 
     processed_mask = resize_and_colorize_mask(pred_mask, original_size, CITYSCAPES_PALETTE)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.image(image, caption="Image Originale", use_container_width=True)
-    with col2:
-        st.image(processed_mask, caption="Masque Prédit", use_container_width=True)
+    st.image(image, caption="Image Originale", use_container_width=True)
+    st.image(processed_mask, caption=f"Masque Prédit - {model_choice}", use_container_width=True)
