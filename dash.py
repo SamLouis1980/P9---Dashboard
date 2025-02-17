@@ -120,58 +120,69 @@ if page == "Résultats des modèles":
     fig.update_layout(title="Évolution des métriques", xaxis_title="Epoch", yaxis_title="Score", template="plotly_white")
     st.plotly_chart(fig)
 
-# Récupération dynamique des images disponibles sur GCS
+import gcsfs
+
+# 🔹 Mise en cache de la liste des images pour éviter les rechargements à chaque interaction
 @st.cache_data
-def get_image_list():
+def get_available_images():
+    """Récupère les images et masques disponibles sur GCS."""
     fs = gcsfs.GCSFileSystem()
-    image_prefix = "p9-dashboard-storage/Dataset/images/"
-    
-    # Liste tous les fichiers disponibles dans le bucket sous le dossier 'images'
-    images = fs.ls(image_prefix)
-    
-    # Ne garder que les noms des fichiers (sans le chemin complet)
-    image_list = [img.split("/")[-1] for img in images if img.endswith(".png")]
-    
-    return sorted(image_list)  # Trier les images pour une meilleure lisibilité
+    image_files = fs.ls("p9-dashboard-storage/Dataset/images")
+    mask_files = fs.ls("p9-dashboard-storage/Dataset/masks")
+
+    # Extraire uniquement les noms des fichiers .png
+    available_images = [img.split("/")[-1] for img in image_files if img.endswith(".png")]
+    available_masks = [msk.split("/")[-1] for msk in mask_files if msk.endswith(".png")]
+
+    return available_images, available_masks
 
 # Charger la liste des images une seule fois
-image_list = get_image_list()
+available_images, available_masks = get_available_images()
 
-# Interface utilisateur pour le test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
-    # Sélecteur d’image parmi celles disponibles sur GCS
-    image_choice = st.selectbox("Choisissez une image à segmenter", image_list)
+    # 🔹 Sélection de l'image
+    image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
-    # Sélecteur du modèle à utiliser
+    # 🔹 Sélection du modèle
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
 
-    st.write(f"Vous avez sélectionné **{image_choice}** avec le modèle **{model_choice}**")
-
-    # Chargement de l'image d'entrée
+    # 🔹 Construction des URLs pour l'image et le masque réel
     image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}"
-    st.image(image_url, caption="Image d'entrée", use_column_width=True)
+    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")  # Adaptation du nom
+    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_filename}"
 
-    # Exécution du modèle sélectionné
-    model = fpn_model if model_choice == "FPN" else mask2former_model
+    # 🔹 Chargement et affichage de l'image originale
+    try:
+        image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
+        st.image(image, caption="Image d'entrée", use_column_width=True)
+    except Exception as e:
+        st.error(f"⚠ Erreur lors du chargement de l'image : {e}")
 
-    # Prétraitement de l'image pour le modèle
-    image_pil = Image.open(urllib.request.urlopen(image_url))
-    input_tensor, original_size = preprocess_image(image_pil, (512, 512))  # Redimensionner au format du modèle
-    
+    # 🔹 Exécution du modèle
+    st.write(f"Prédiction avec {model_choice} en cours...")
+
     with torch.no_grad():
-        input_tensor = torch.tensor(input_tensor).permute(0, 3, 1, 2).float()  # Réorganiser les dimensions
-        output = model(input_tensor)  # Passage dans le modèle
-        mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()  # Extraction du masque final
+        input_size = (512, 512)
+        image_resized, original_size = preprocess_image(image, input_size)
 
-    # Post-traitement et colorisation
-    segmented_mask = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
+        tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float().unsqueeze(0)
 
-    # Affichage du masque segmenté
-    st.image(segmented_mask, caption="Masque segmenté par le modèle", use_column_width=True)
+        if model_choice == "FPN":
+            output = fpn_model(tensor_image)
+        else:
+            output = mask2former_model(tensor_image)
 
-    # Chargement du vrai masque correspondant
-    mask_choice = image_choice.replace("leftImg8bit", "gtFine_color")  # Adapter le nom du fichier masque
-    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_choice}"
-    st.image(mask_url, caption="Masque réel", use_column_width=True)
+        mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
+        mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
+
+    # 🔹 Affichage du masque segmenté
+    st.image(mask_colorized, caption="Masque segmenté", use_column_width=True)
+
+    # 🔹 Affichage du masque réel correspondant
+    try:
+        real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
+        st.image(real_mask, caption="Masque réel", use_column_width=True)
+    except Exception as e:
+        st.error(f"⚠ Impossible de charger le masque réel : {e}")
