@@ -119,16 +119,58 @@ if page == "Résultats des modèles":
     fig.update_layout(title="Évolution des métriques", xaxis_title="Epoch", yaxis_title="Score", template="plotly_white")
     st.plotly_chart(fig)
 
+# Récupération dynamique des images disponibles sur GCS
+@st.cache_data
+def get_image_list():
+    fs = gcsfs.GCSFileSystem()
+    image_prefix = "p9-dashboard-storage/Dataset/images/"
+    
+    # Liste tous les fichiers disponibles dans le bucket sous le dossier 'images'
+    images = fs.ls(image_prefix)
+    
+    # Ne garder que les noms des fichiers (sans le chemin complet)
+    image_list = [img.split("/")[-1] for img in images if img.endswith(".png")]
+    
+    return sorted(image_list)  # Trier les images pour une meilleure lisibilité
+
+# Charger la liste des images une seule fois
+image_list = get_image_list()
+
+# Interface utilisateur pour le test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
-    
-    image_list = ["image1.png", "image2.png", "image3.png"]
+
+    # Sélecteur d’image parmi celles disponibles sur GCS
     image_choice = st.selectbox("Choisissez une image à segmenter", image_list)
-    
+
+    # Sélecteur du modèle à utiliser
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
+
+    st.write(f"Vous avez sélectionné **{image_choice}** avec le modèle **{model_choice}**")
+
+    # Chargement de l'image d'entrée
+    image_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}"
+    st.image(image_url, caption="Image d'entrée", use_column_width=True)
+
+    # Exécution du modèle sélectionné
+    model = fpn_model if model_choice == "FPN" else mask2former_model
+
+    # Prétraitement de l'image pour le modèle
+    image_pil = Image.open(urllib.request.urlopen(image_url))
+    input_tensor, original_size = preprocess_image(image_pil, (512, 512))  # Redimensionner au format du modèle
     
-    st.write(f"Vous avez sélectionné {image_choice} avec le modèle {model_choice}")
-    st.image(f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}", caption="Image d'entrée")
-    
-    st.write("Masque segmenté")
-    st.image(f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{image_choice}", caption="Masque segmenté")
+    with torch.no_grad():
+        input_tensor = torch.tensor(input_tensor).permute(0, 3, 1, 2).float()  # Réorganiser les dimensions
+        output = model(input_tensor)  # Passage dans le modèle
+        mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()  # Extraction du masque final
+
+    # Post-traitement et colorisation
+    segmented_mask = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
+
+    # Affichage du masque segmenté
+    st.image(segmented_mask, caption="Masque segmenté par le modèle", use_column_width=True)
+
+    # Chargement du vrai masque correspondant
+    mask_choice = image_choice.replace("leftImg8bit", "gtFine_color")  # Adapter le nom du fichier masque
+    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_choice}"
+    st.image(mask_url, caption="Masque réel", use_column_width=True)
