@@ -118,8 +118,8 @@ if page == "Résultats des modèles":
     st.subheader("Comparaison des métriques d'entraînement")
     
     # Chargement des résultats
-    fpn_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Models/fpn_results.csv")
-    mask2former_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Models/mask2former_results.csv")
+    fpn_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/fpn_results.csv")
+    mask2former_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/mask2former_results.csv")
     
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val Loss"], mode='lines', name='FPN - Validation Loss'))
