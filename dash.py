@@ -45,7 +45,7 @@ def load_models():
     convnext_model = torch.load(convnext_model_path, map_location=torch.device("cpu"))
     convnext_model.eval()  # Mettre en mode évaluation
 
-    return fpn_model, mask2former_model
+    return fpn_model, convnext_model
 
 # Charger les modèles
 fpn_model, convnext_model = load_models()
