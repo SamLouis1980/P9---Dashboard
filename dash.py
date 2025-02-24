@@ -158,6 +158,7 @@ if page == "Test des modèles":
         # 🔹 Prétraitement de l’image avant passage dans le modèle
         input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
+        print("Shape de image_resized avant conversion:", image_resized.shape)
         tensor_image = torch.tensor(image_resized).permute(2, 0, 1).float().unsqueeze(0)  # [1, 3, H, W]
 
         # 🔹 Prédiction du modèle
