@@ -122,7 +122,7 @@ if page == "Test des modèles":
     try:
         # 🔹 Chargement et affichage de l’image d’entrée
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
-        st.image(image, caption="Image d'entrée", use_column_width=True)
+        st.image(image, caption="Image d'entrée", use_container_width=True)
 
         # 🔹 Prétraitement de l’image avant passage dans le modèle
         input_size = (512, 512)
@@ -135,11 +135,11 @@ if page == "Test des modèles":
         mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
         # 🔹 Affichage du masque segmenté
-        st.image(mask_colorized, caption="Masque segmenté", use_column_width=True)
+        st.image(mask_colorized, caption="Masque segmenté", use_container_width=True)
 
         # 🔹 Chargement et affichage du masque réel
         real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
-        st.image(real_mask, caption="Masque réel", use_column_width=True)
+        st.image(real_mask, caption="Masque réel", use_container_width=True)
 
     except Exception as e:
         st.error(f"❌ Erreur lors du chargement des images : {e}")
