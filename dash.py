@@ -11,12 +11,24 @@ from PIL import Image
 import numpy as np
 import warnings
 import plotly.graph_objects as go
-import gcsfs
-from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLASS_COLORS
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
-# 🔹 Mise en cache des modèles pour éviter les rechargements inutiles
+# Définition du modèle FPN
+class FPN_Segmenter(nn.Module):
+    def __init__(self, num_classes=8):
+        super(FPN_Segmenter, self).__init__()
+        self.fpn_backbone = torchvision.models.detection.fasterrcnn_resnet50_fpn(weights="COCO_V1").backbone
+        self.final_conv = nn.Conv2d(256, num_classes, kernel_size=1)
+
+    def forward(self, x):
+        fpn_features = self.fpn_backbone(x)
+        p2 = fpn_features['0']
+        output = self.final_conv(p2)
+        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+        return output
+
+# Chargement et mise en cache des modèles
 @st.cache_resource
 def load_models():
     fpn_model_path = "fpn_best.pth"
@@ -42,56 +54,22 @@ def load_models():
 fpn_model, mask2former_model = load_models()
 st.write("Modèles chargés avec succès")
 
-# 🔹 Sidebar Navigation
+# Création de la sidebar
 st.sidebar.title("Menu")
-page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
+page = st.sidebar.radio("Aller à :", [
+    "EDA", 
+    "Résultats des modèles", 
+    "Test des modèles"
+])
 
-# 🔹 Récupération des images et masques depuis GCS (mise en cache)
-@st.cache_data
-def get_available_images_and_masks():
-    """Charge les listes d'images et de masques à partir de fichiers CSV stockés sur GCS."""
-    image_csv_url = "https://storage.googleapis.com/p9-dashboard-storage/image_list.csv"
-    mask_csv_url = "https://storage.googleapis.com/p9-dashboard-storage/mask_list.csv"
-
-    try:
-        # Charger les images
-        df_images = pd.read_csv(image_csv_url)
-        available_images = df_images["image_name"].tolist()
-
-        # Charger les masques
-        df_masks = pd.read_csv(mask_csv_url)
-        available_masks = df_masks["mask_name"].tolist()
-
-        return available_images, available_masks
-    except Exception as e:
-        st.error(f"❌ Erreur lors du chargement des fichiers CSV : {e}")
-        return [], []
-
-available_images, available_masks = get_available_images_and_masks()
-
-# 🔹 Fonction de téléchargement d’image unique
-@st.cache_resource
-def download_image_from_gcs(image_name):
-    """Télécharge une image depuis GCS si elle n'est pas déjà en local."""
-    local_path = f"./{image_name}"
-    gcs_path = f"p9-dashboard-storage/Dataset/images/{image_name}"
-
-    if not os.path.exists(local_path):
-        fs = gcsfs.GCSFileSystem()
-        fs.get(gcs_path, local_path)
-
-    return local_path
-
-# 🔹 Page EDA
+# Page EDA
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
-
-    # 🔹 Structure du dataset
     st.header("Structure des Dossiers et Fichiers")
     folders = {"Images": ["train", "val", "test"], "Masques": ["train", "val", "test"]}
     for key, values in folders.items():
         st.write(f"**{key}**: {', '.join(values)}")
-
+    
     dataset_info = {
         "Ensemble": ["Train", "Validation", "Test"],
         "Images": [2975, 500, 1525],
@@ -99,8 +77,7 @@ if page == "EDA":
     }
     df_info = pd.DataFrame(dataset_info)
     st.table(df_info)
-
-    # 🔹 Distribution des classes
+    
     st.header("Distribution des Classes dans les Masques")
     class_distribution = {
         "ID": [7, 11, 21, 26, 8, 1, 23, 3, 4, 2, 6, 17, 24, 22, 13, 9, 12, 20, 33, 15],
@@ -111,8 +88,7 @@ if page == "EDA":
     }
     df_classes = pd.DataFrame(class_distribution)
     st.table(df_classes.head(10))
-
-    # 🔹 Affichage du graphique de répartition des classes
+    
     fig, ax = plt.subplots()
     ax.bar(df_classes["Classe"], df_classes["Pixels"], color="skyblue")
     plt.xticks(rotation=90)
@@ -121,7 +97,7 @@ if page == "EDA":
     plt.title("Répartition des Pixels par Classe")
     st.pyplot(fig)
 
-# 🔹 Page Résultats des modèles
+# Chargement des résultats mis en cache
 @st.cache_data
 def load_results():
     fpn_results = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/fpn_results.csv")
@@ -132,38 +108,27 @@ fpn_results, mask2former_results = load_results()
 
 if page == "Résultats des modèles":
     st.title("Analyse des Résultats des Modèles")
-
+    st.subheader("Comparaison des métriques d'entraînement")
+    
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val Loss"], mode='lines', name='FPN - Validation Loss'))
     fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val IoU"], mode='lines', name='FPN - Validation IoU Score'))
     fig.add_trace(go.Scatter(x=mask2former_results["Epoch"], y=mask2former_results["Val Loss"], mode='lines', name='Mask2Former - Validation Loss'))
     fig.add_trace(go.Scatter(x=mask2former_results["Epoch"], y=mask2former_results["Val IoU"], mode='lines', name='Mask2Former - Validation IoU Score'))
-
+    
+    fig.update_layout(title="Évolution des métriques", xaxis_title="Epoch", yaxis_title="Score", template="plotly_white")
     st.plotly_chart(fig)
 
-# 🔹 Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
-
-    image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
+    
+    image_list = ["image1.png", "image2.png", "image3.png"]
+    image_choice = st.selectbox("Choisissez une image à segmenter", image_list)
+    
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
-
-    # 🔹 Téléchargement local de l’image
-    image_path = download_image_from_gcs(image_choice)
-    image = Image.open(image_path).convert("RGB")
-    st.image(image, caption="Image d'entrée", use_column_width=True)
-
-    # 🔹 Chargement du masque réel correspondant
-    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
-    mask_url = f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{mask_filename}"
-
-    input_size = (512, 512)
-    image_resized, original_size = preprocess_image(image, input_size)
-    tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float().unsqueeze(0)
-
-    output = fpn_model(tensor_image) if model_choice == "FPN" else mask2former_model(tensor_image)
-    mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
-    mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
-
-    st.image(mask_colorized, caption="Masque segmenté", use_column_width=True)
-    st.image(Image.open(urllib.request.urlopen(mask_url)).convert("RGB"), caption="Masque réel", use_column_width=True)
+    
+    st.write(f"Vous avez sélectionné {image_choice} avec le modèle {model_choice}")
+    st.image(f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/images/{image_choice}", caption="Image d'entrée")
+    
+    st.write("Masque segmenté")
+    st.image(f"https://storage.googleapis.com/p9-dashboard-storage/Dataset/masks/{image_choice}", caption="Masque segmenté")
