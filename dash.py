@@ -20,6 +20,37 @@ BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
 MASK_FOLDER = "Dataset/masks"
 
+# 🔹 Chemins vers les modèles sur GCS
+FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
+MASK2FORMER_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/mask2former_best.pth"
+
+# 🔹 Téléchargement et chargement des modèles
+@st.cache_resource
+def load_models():
+    """Télécharge et charge les modèles depuis Google Cloud Storage."""
+    fpn_model_path = "fpn_best.pth"
+    mask2former_model_path = "mask2former_best.pth"
+
+    # Télécharger les fichiers depuis GCS s'ils ne sont pas déjà présents
+    if not os.path.exists(fpn_model_path):
+        urllib.request.urlretrieve(FPN_MODEL_URL, fpn_model_path)
+    
+    if not os.path.exists(mask2former_model_path):
+        urllib.request.urlretrieve(MASK2FORMER_MODEL_URL, mask2former_model_path)
+
+    # Charger les modèles
+    fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
+    fpn_model.eval()  # Mettre en mode évaluation
+
+    mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"))
+    mask2former_model.eval()  # Mettre en mode évaluation
+
+    return fpn_model, mask2former_model
+
+# Charger les modèles
+fpn_model, mask2former_model = load_models()
+st.write("✅ Modèles chargés avec succès.")
+
 # 🔹 Liste manuelle des images (évite les appels à GCS)
 @st.cache_data
 def get_available_images_and_masks():
