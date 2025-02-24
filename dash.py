@@ -4,7 +4,10 @@ import torch
 import urllib.request
 from google.cloud import storage
 from PIL import Image
-from utils import preprocess_image, resize_and_colorize_mask, CLASS_COLORS
+from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLASS_COLORS
+
+# ✅ Assurer que les classes sont enregistrées AVANT de charger les modèles
+torch.serialization.add_safe_globals([FPN_Segmenter])
 
 # 🔹 Définition du bucket GCS
 BUCKET_NAME = "p9-dashboard-storage"
@@ -12,11 +15,11 @@ MODEL_FOLDER = "Models"
 IMAGE_FOLDER = "Dataset/images"
 MASK_FOLDER = "Dataset/masks"
 
-# 🔹 Initialisation du client GCS (anonyme car bucket public)
+# 🔹 Initialisation du client GCS (bucket public)
 storage_client = storage.Client.create_anonymous_client()
 bucket = storage_client.bucket(BUCKET_NAME)
 
-# 🔹 Mise en cache des modèles pour éviter les rechargements inutiles
+# 🔹 Mise en cache des modèles
 @st.cache_resource
 def load_models():
     fpn_model_path = "fpn_best.pth"
@@ -34,7 +37,7 @@ def load_models():
     try:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # ✅ Chargement du modèle ENTIER (et pas juste les poids)
+        # ✅ Charger tout le modèle
         fpn_model = torch.load(fpn_model_path, map_location=device)
         fpn_model.eval()
 
@@ -50,12 +53,11 @@ def load_models():
 
 fpn_model, mask2former_model = load_models()
 
-# 🔹 Vérification du bon chargement des modèles
 if fpn_model is None or mask2former_model is None:
-    st.error("❌ Impossible de charger les modèles. Vérifiez votre stockage GCS.")
+    st.error("❌ Impossible de charger les modèles.")
     st.stop()
 
-# 🔹 Fonction pour récupérer la liste des images disponibles dans le bucket
+# 🔹 Fonction pour récupérer la liste des images
 @st.cache_data
 def get_available_images():
     try:
@@ -63,7 +65,7 @@ def get_available_images():
         image_files = [blob.name.split("/")[-1] for blob in blobs if blob.name.endswith(".png")]
 
         if not image_files:
-            st.error("❌ Aucune image trouvée dans le bucket. Vérifiez le stockage GCS.")
+            st.error("❌ Aucune image trouvée.")
             return []
 
         return image_files
@@ -73,9 +75,8 @@ def get_available_images():
 
 available_images = get_available_images()
 
-# 🔹 Vérification si la liste d'images est vide
 if not available_images:
-    st.error("⚠ Aucune image disponible. Arrêt du script.")
+    st.error("⚠ Aucune image disponible.")
     st.stop()
 
 st.write(f"✅ {len(available_images)} images disponibles.")
@@ -88,15 +89,13 @@ page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test d
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
-    image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
+    image_choice = st.selectbox("Choisissez une image", available_images)
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
 
-    # 🔹 Vérification de la sélection d'image
     if not image_choice:
         st.error("⚠ Aucune image sélectionnée.")
         st.stop()
 
-    # 🔹 URL directe des fichiers GCS (aucun téléchargement local nécessaire)
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
     mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
     mask_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask_filename}"
@@ -105,7 +104,7 @@ if page == "Test des modèles":
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
         st.image(image, caption="Image d'entrée", use_container_width=True)
     except Exception as e:
-        st.error(f"⚠ Erreur lors du chargement de l'image : {e}")
+        st.error(f"⚠ Erreur image : {e}")
 
     try:
         input_size = (512, 512)
@@ -120,4 +119,4 @@ if page == "Test des modèles":
         st.image(Image.open(urllib.request.urlopen(mask_url)).convert("RGB"), caption="Masque réel", use_container_width=True)
 
     except Exception as e:
-        st.error(f"⚠ Erreur lors de la segmentation : {e}")
+        st.error(f"⚠ Erreur segmentation : {e}")
