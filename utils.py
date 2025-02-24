@@ -2,6 +2,7 @@ import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
+import timm
 import numpy as np
 from PIL import Image
 
@@ -17,7 +18,7 @@ CLASS_COLORS = {
     7: (0, 0, 142)       # Vehicle
 }
 
-# 🔹 Définition du modèle FPN
+# 🔹 Définition du modèle FPN + Resnet50
 class FPN_Segmenter(nn.Module):
     def __init__(self, num_classes=8):
         super(FPN_Segmenter, self).__init__()
@@ -29,6 +30,60 @@ class FPN_Segmenter(nn.Module):
         p2 = fpn_features['0']
         output = self.final_conv(p2)
         output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+        return output
+
+# 🔹 Définition du modèle FPN + Resnet50
+class FPN_ConvNeXtV2_Segmenter(nn.Module):
+    def __init__(self, num_classes=8):
+        super(FPN_ConvNeXtV2_Segmenter, self).__init__()
+
+        # Charger ConvNeXt V2-Large pré-entraîné
+        self.convnext_backbone = timm.create_model("convnextv2_large", pretrained=True, features_only=True)
+
+        # Convolutions latérales 1x1 pour aligner les features avec FPN
+        self.lateral_convs = nn.ModuleList([
+            nn.Conv2d(192, 256, kernel_size=1),   # Feature 0 (128x128)
+            nn.Conv2d(384, 256, kernel_size=1),   # Feature 1 (64x64)
+            nn.Conv2d(768, 256, kernel_size=1),   # Feature 2 (32x32)
+            nn.Conv2d(1536, 256, kernel_size=1),  # Feature 3 (16x16)
+        ])
+
+        # Convolutions 3x3 après fusion des features
+        self.fpn_convs = nn.ModuleList([
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+            nn.Conv2d(256, 256, kernel_size=3, padding=1),
+        ])
+
+        # Convolution finale pour segmentation
+        self.final_conv = nn.Conv2d(256, num_classes, kernel_size=1)
+
+    def forward(self, x):
+        """Passage avant du modèle FPN + ConvNeXtV2"""
+
+        # Extraire les features de ConvNeXt V2-Large
+        features = self.convnext_backbone(x)
+
+        # Appliquer les convolutions latérales 1x1
+        fpn_features = [conv(feat) for feat, conv in zip(features, self.lateral_convs)]
+
+        # Fusionner les features FPN (du plus bas niveau au plus haut)
+        for i in range(len(fpn_features) - 1, 0, -1):
+            fpn_features[i - 1] += F.interpolate(fpn_features[i], scale_factor=2, mode="bilinear", align_corners=False)
+
+        # Appliquer les convolutions FPN après fusion
+        fpn_features = [conv(feat) for feat, conv in zip(fpn_features, self.fpn_convs)]
+
+        # Prendre la feature la plus large (128x128)
+        output = fpn_features[0]
+
+        # Convolution finale pour segmentation
+        output = self.final_conv(output)
+
+        # Upsample à la taille de l'image d'entrée (512x512)
+        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+
         return output
 
 # 🔹 Prétraitement des images
