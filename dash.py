@@ -22,33 +22,33 @@ MASK_FOLDER = "Dataset/masks"
 
 # 🔹 Chemins vers les modèles sur GCS
 FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
-MASK2FORMER_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/mask2former_best.pth"
+CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext-V2_fpn_best.pth"
 
 # 🔹 Téléchargement et chargement des modèles
 @st.cache_resource
 def load_models():
     """Télécharge et charge les modèles depuis Google Cloud Storage."""
     fpn_model_path = "fpn_best.pth"
-    mask2former_model_path = "mask2former_best.pth"
+    convnext_model_path = "convnext-V2_fpn_best.pth"
 
     # Télécharger les fichiers depuis GCS s'ils ne sont pas déjà présents
     if not os.path.exists(fpn_model_path):
         urllib.request.urlretrieve(FPN_MODEL_URL, fpn_model_path)
     
-    if not os.path.exists(mask2former_model_path):
-        urllib.request.urlretrieve(MASK2FORMER_MODEL_URL, mask2former_model_path)
+    if not os.path.exists(convnext_model_path):
+        urllib.request.urlretrieve(CONVNEXT_MODEL_URL, convnext_model_path)
 
     # Charger les modèles
     fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
     fpn_model.eval()  # Mettre en mode évaluation
 
-    mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"))
-    mask2former_model.eval()  # Mettre en mode évaluation
+    convnext_model = torch.load(convnext_model_path, map_location=torch.device("cpu"))
+    convnext_model.eval()  # Mettre en mode évaluation
 
     return fpn_model, mask2former_model
 
 # Charger les modèles
-fpn_model, mask2former_model = load_models()
+fpn_model, convnext_model = load_models()
 st.write("✅ Modèles chargés avec succès.")
 
 # 🔹 Liste manuelle des images (évite les appels à GCS)
@@ -143,7 +143,7 @@ if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
-    model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
+    model_choice = st.radio("Choisissez le modèle", ["FPN", "ConvNext"])
 
     # 🔹 URL de l’image et du masque réel
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
@@ -161,7 +161,7 @@ if page == "Test des modèles":
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Prédiction du modèle
-        output = fpn_model(tensor_image) if model_choice == "FPN" else mask2former_model(tensor_image)
+        output = fpn_model(tensor_image) if model_choice == "FPN" else convnext_model(tensor_image)
         mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
         mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
