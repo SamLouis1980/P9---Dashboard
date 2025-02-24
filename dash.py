@@ -11,7 +11,7 @@ from PIL import Image
 import numpy as np
 import warnings
 import plotly.graph_objects as go
-from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLASS_COLORS
+from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN_ConvNeXtV2_Segmenter, CLASS_COLORS
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
