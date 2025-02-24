@@ -22,14 +22,14 @@ MASK_FOLDER = "Dataset/masks"
 
 # 🔹 Chemins vers les modèles sur GCS
 FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
-CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext-V2_fpn_best.pth"
+CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext_model_fp16.pth"
 
 # 🔹 Téléchargement et chargement des modèles
 @st.cache_resource
 def load_models():
     """Télécharge et charge les modèles depuis Google Cloud Storage."""
     fpn_model_path = "fpn_best.pth"
-    convnext_model_path = "convnext-V2_fpn_best.pth"
+    convnext_model_path = "convnext_model_fp16.pth"
 
     # Télécharger les fichiers depuis GCS s'ils ne sont pas déjà présents
     if not os.path.exists(fpn_model_path):
