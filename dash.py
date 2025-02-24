@@ -6,7 +6,7 @@ from google.cloud import storage
 from PIL import Image
 from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, CLASS_COLORS
 
-# ✅ Assurer que les classes sont enregistrées AVANT de charger les modèles
+# ✅ Vérification et enregistrement de la classe pour éviter les erreurs de chargement
 torch.serialization.add_safe_globals([FPN_Segmenter])
 
 # 🔹 Définition du bucket GCS
@@ -37,7 +37,7 @@ def load_models():
     try:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        # ✅ Charger tout le modèle
+        # ✅ Charger tout le modèle (pas seulement les poids)
         fpn_model = torch.load(fpn_model_path, map_location=device)
         fpn_model.eval()
 
