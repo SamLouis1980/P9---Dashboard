@@ -161,7 +161,10 @@ if page == "Test des modèles":
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Prédiction du modèle
-        output = fpn_model(tensor_image) if model_choice == "FPN" else convnext_model(tensor_image)
+        if model_choice == "FPN":
+            output = fpn_model(tensor_image)  # FPN en FP32
+        else:
+            output = convnext_model(tensor_image.half())  # ConvNeXt en FP16
         mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
         mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
