@@ -41,10 +41,10 @@ def load_models():
     if not os.path.exists(mask2former_model_path):
         urllib.request.urlretrieve(mask2former_url, mask2former_model_path)
 
-    fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
+    fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"), weights_only=True)
     fpn_model.eval()
 
-    mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"))
+    mask2former_model = torch.load(mask2former_model_path, map_location=torch.device("cpu"), weights_only=True)
     mask2former_model.eval()
 
     return fpn_model, mask2former_model
@@ -59,13 +59,24 @@ def get_available_images():
     try:
         blobs = bucket.list_blobs(prefix=IMAGE_FOLDER + "/")
         image_files = [blob.name.split("/")[-1] for blob in blobs if blob.name.endswith(".png")]
+
+        if not image_files:
+            st.error("❌ Aucune image trouvée dans le bucket. Vérifiez le stockage GCS.")
+            return []
+
         return image_files
     except Exception as e:
         st.error(f"❌ Erreur lors du chargement des images : {e}")
         return []
 
 available_images = get_available_images()
-st.write("✅ Images chargées avec succès.")
+
+# 🔹 Vérification si la liste d'images est vide
+if not available_images:
+    st.error("⚠ Aucune image disponible. Arrêt du script.")
+    st.stop()  # ✅ Stopper l'exécution pour éviter d'autres erreurs
+
+st.write(f"✅ {len(available_images)} images disponibles.")
 
 # 🔹 Sidebar Navigation
 st.sidebar.title("Menu")
@@ -114,6 +125,11 @@ if page == "Test des modèles":
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
     model_choice = st.radio("Choisissez le modèle", ["FPN", "Mask2Former"])
+
+    # 🔹 Vérification de la sélection d'image
+    if not image_choice:
+        st.error("⚠ Aucune image sélectionnée.")
+        st.stop()
 
     # 🔹 URL directe des fichiers GCS (aucun téléchargement local nécessaire)
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
