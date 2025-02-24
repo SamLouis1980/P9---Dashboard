@@ -158,8 +158,7 @@ if page == "Test des modèles":
         # 🔹 Prétraitement de l’image avant passage dans le modèle
         input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
-        st.write("Shape de image_resized avant conversion:", image_resized.shape)
-        tensor_image = torch.tensor(image_resized).permute(2, 0, 1).float().unsqueeze(0)  # [1, 3, H, W]
+        tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Prédiction du modèle
         output = fpn_model(tensor_image) if model_choice == "FPN" else mask2former_model(tensor_image)
