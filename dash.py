@@ -11,6 +11,7 @@ from PIL import Image
 import numpy as np
 import warnings
 import plotly.graph_objects as go
+import gc
 from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN_ConvNeXtV2_Segmenter, CLASS_COLORS
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
@@ -161,12 +162,19 @@ if page == "Test des modèles":
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Prédiction du modèle
-        if model_choice == "FPN":
-            output = fpn_model(tensor_image)  # FPN en FP32
-        else:
-            output = convnext_model(tensor_image.half())  # ConvNeXt en FP16
+        with torch.no_grad():  
+            if model_choice == "FPN":
+                output = fpn_model(tensor_image)  # FPN en FP32
+            else:
+                output = convnext_model(tensor_image.half())  # ConvNeXt en FP16
+
         mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
         mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
+
+        # ✅ Libérer la mémoire après inférence
+        torch.cuda.empty_cache()
+        del tensor_image, output
+        gc.collect()
 
         # 🔹 Affichage du masque segmenté
         st.image(mask_colorized, caption="Masque segmenté", use_container_width=True)
