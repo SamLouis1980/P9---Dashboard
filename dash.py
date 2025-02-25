@@ -23,14 +23,14 @@ MASK_FOLDER = "Dataset/masks"
 
 # 🔹 Chemins vers les modèles sur GCS
 FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
-CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext_scripted_fp16.pt"
+CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext_model_fp16.pth"
 
 # 🔹 Téléchargement et chargement des modèles
 @st.cache_resource
 def load_models():
     """Télécharge et charge les modèles depuis Google Cloud Storage."""
-    fpn_model_path = "fpn_scripted.pt"
-    convnext_model_path = "convnext_scripted_fp16.pt"
+    fpn_model_path = "fpn_best.pth"
+    convnext_model_path = "convnext_model_fp16.pth"
 
     # Télécharger les fichiers depuis GCS s'ils ne sont pas déjà présents
     if not os.path.exists(fpn_model_path):
@@ -40,10 +40,10 @@ def load_models():
         urllib.request.urlretrieve(CONVNEXT_MODEL_URL, convnext_model_path)
 
     # Charger les modèles
-    fpn_model = torch.jit.load(fpn_model_path, map_location=torch.device("cpu"))
+    fpn_model = torch.load(fpn_model_path, map_location=torch.device("cpu"))
     fpn_model.eval()  # Mettre en mode évaluation
 
-    convnext_model = torch.jit.load(convnext_model_path, map_location=torch.device("cpu"))
+    convnext_model = torch.load(convnext_model_path, map_location=torch.device("cpu"))
     convnext_model.eval()  # Mettre en mode évaluation
 
     return fpn_model, convnext_model
@@ -139,51 +139,49 @@ if page == "Résultats des modèles":
 
     st.plotly_chart(fig)
     
-# Page Test des modèles
+# 🔹 Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
     model_choice = st.radio("Choisissez le modèle", ["FPN", "ConvNext"])
 
-    # URL de l’image et du masque réel
+    # 🔹 URL de l’image et du masque réel
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
     mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
     mask_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask_filename}"
 
     try:
-        # Chargement et affichage de l’image d’entrée
+        # 🔹 Chargement et affichage de l’image d’entrée
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
-        # Prétraitement de l’image avant passage dans le modèle
+        # 🔹 Prétraitement de l’image avant passage dans le modèle
         input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
-        # Prédiction du modèle
+        # 🔹 Prédiction du modèle
         with torch.no_grad():  
             if model_choice == "FPN":
-                tensor_image_fpn = tensor_image.float()  # FPN attend du FP32
-                output = fpn_model(tensor_image_fpn)  
+                output = fpn_model(tensor_image)  # FPN en FP32
             else:
-                tensor_image_convnext = tensor_image.half()  # ConvNeXt TorchScripté attend du FP16
-                output = convnext_model(tensor_image_convnext)
+                output = convnext_model(tensor_image.half())  # ConvNeXt en FP16
 
         mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
         mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
 
-        # Libérer la mémoire après inférence
+        # ✅ Libérer la mémoire après inférence
         torch.cuda.empty_cache()
         del tensor_image, output
         gc.collect()
 
-        # Affichage du masque segmenté
+        # 🔹 Affichage du masque segmenté
         st.image(mask_colorized, caption="Masque segmenté", use_container_width=True)
 
-        # Chargement et affichage du masque réel
+        # 🔹 Chargement et affichage du masque réel
         real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
         st.image(real_mask, caption="Masque réel", use_container_width=True)
 
     except Exception as e:
-        st.error(f"Erreur lors du chargement des images : {e}")
+        st.error(f"❌ Erreur lors du chargement des images : {e}")
