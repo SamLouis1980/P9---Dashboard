@@ -234,13 +234,19 @@ if page == "Test des modèles":
         # 🔹 Bouton pour lancer la segmentation
         if st.button("Lancer la segmentation"):
             print("Bouton cliqué !")  # Debug
+
+            # Réinitialiser les résultats précédents
             st.session_state.segmentation_fpn = None
             st.session_state.segmentation_convnext = None
+            st.session_state.processing = True
 
-            with st.spinner("Segmentation en cours..."):
-                threading.Thread(target=run_segmentation, args=(tensor_image, original_size)).start()
+            # Lancer la segmentation en arrière-plan avec mise à jour dynamique
+            threading.Thread(target=run_segmentation, args=(tensor_image, original_size), daemon=True).start()
 
             print("Segmentation lancée en arrière-plan !")  # Debug
+
+            # Mise à jour immédiate pour voir le statut "en cours"
+            st.experimental_rerun()
 
         # 🔹 Affichage du statut
         if st.session_state.processing:
