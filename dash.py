@@ -218,10 +218,8 @@ if page == "Test des modèles":
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
-    # 🔹 URL de l’image et du masque réel
+    # 🔹 URL de l’image
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
-    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
-    mask_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask_filename}"
 
     try:
         # 🔹 Chargement et affichage de l’image d’entrée
@@ -286,10 +284,6 @@ if page == "Test des modèles":
                 st.image(st.session_state.overlay_fpn, caption="Superposition - FPN", use_container_width=True)
             with col4:
                 st.image(st.session_state.overlay_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
-
-        # 🔹 Chargement et affichage du masque réel
-        real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
-        st.image(real_mask, caption="Masque réel", use_container_width=True)
 
     except Exception as e:
         st.error(f"Erreur lors du chargement des images : {e}")
