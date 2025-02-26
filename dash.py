@@ -16,53 +16,6 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
-# 🔹 Appliquer un thème sombre
-st.markdown(
-    """
-    <style>
-        /* Fond noir et texte blanc */
-        body, .stApp {
-            background-color: #121212;
-            color: white;
-        }
-        
-        /* Sidebar */
-        .css-1d391kg {
-            background-color: #1E1E1E !important;
-        }
-
-        /* Titres et textes */
-        h1, h2, h3, h4, h5, h6, p, label, span {
-            color: white !important;
-        }
-
-        /* Graphiques */
-        .stPlotlyChart, .stAltairChart, .stPyplot {
-            background-color: #1E1E1E;
-            color: white;
-        }
-
-        /* Tableaux */
-        .stDataFrame {
-            background-color: #1E1E1E !important;
-            color: white !important;
-        }
-
-        /* Sélecteurs et boutons */
-        .stSelectbox, .stRadio, .stButton>button {
-            background-color: #333 !important;
-            color: white !important;
-        }
-
-        /* Liens et focus */
-        a {
-            color: #BB86FC !important;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # 🔹 Configuration du bucket GCS (Public)
 BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
