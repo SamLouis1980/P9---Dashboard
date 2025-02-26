@@ -178,25 +178,28 @@ if page == "Résultats des modèles":
 
     st.plotly_chart(fig)
 
-def run_segmentation(model_choice, tensor_image, original_size):
-    """Exécute la segmentation en arrière-plan"""
-    print("🚀 Début de la segmentation...")  # Ajout pour debug
-    st.session_state.processing = True  # Indique que la segmentation est en cours
-    time.sleep(1)  # Simule un petit délai avant exécution
+def run_segmentation(tensor_image, original_size):
+    """Exécute la segmentation avec les deux modèles en parallèle."""
+    print("🚀 Début de la segmentation...")  # Debug
+    st.session_state.processing = True  
 
     with torch.no_grad():
-        if model_choice == "FPN":
-            output = fpn_model(tensor_image)  # FPN en FP32
-        else:
-            output = convnext_model(tensor_image.half())  # ConvNeXt en FP16
-    
-    mask = torch.argmax(output, dim=1).squeeze().cpu().numpy()
-    mask_colorized = resize_and_colorize_mask(mask, original_size, CLASS_COLORS)
+        # FPN (FP32)
+        output_fpn = fpn_model(tensor_image)
+        mask_fpn = torch.argmax(output_fpn, dim=1).squeeze().cpu().numpy()
+        mask_fpn_colorized = resize_and_colorize_mask(mask_fpn, original_size, CLASS_COLORS)
 
-    # Stocker le résultat et arrêter le mode "en cours"
-    st.session_state.segmentation_result = mask_colorized
+        # ConvNeXt (FP16)
+        output_convnext = convnext_model(tensor_image.half())
+        mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
+        mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
+
+    # Stocker les résultats
+    st.session_state.segmentation_fpn = mask_fpn_colorized
+    st.session_state.segmentation_convnext = mask_convnext_colorized
     st.session_state.processing = False
-    print("Segmentation terminée.")  # Ajout pour debug
+
+    print("Segmentation terminée.")  # Debug
 
 # Initialisation des variables dans session_state si elles n'existent pas encore
 if "segmentation_fpn" not in st.session_state:
@@ -211,7 +214,7 @@ if page == "Test des modèles":
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
-    # 🔹 URL de l’image et du masque réel
+    # 🔹 URL de l’image d’entrée
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
 
     try:
@@ -219,24 +222,21 @@ if page == "Test des modèles":
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
-        # 🔹 Prétraitement de l’image avant passage dans le modèle
+        # 🔹 Prétraitement avant segmentation
         input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Bouton pour lancer la segmentation
         if st.button("Lancer la segmentation"):
-            print("🖱️ Bouton cliqué !")  # Debug
-
-            # Réinitialiser le résultat précédent
+            print("Bouton cliqué !")  # Debug
             st.session_state.segmentation_fpn = None
             st.session_state.segmentation_convnext = None
 
-            # 🔹 Afficher un spinner pendant l'exécution
             with st.spinner("Segmentation en cours..."):
-                run_segmentation(tensor_image, original_size)
+                threading.Thread(target=run_segmentation, args=(tensor_image, original_size)).start()
 
-            print("Segmentation terminée !")  # Debug
+            print("Segmentation lancée en arrière-plan !")  # Debug
 
         # 🔹 Affichage du statut
         if st.session_state.processing:
