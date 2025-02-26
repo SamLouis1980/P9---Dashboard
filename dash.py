@@ -223,12 +223,17 @@ if page == "Test des modèles":
 
         # 🔹 Bouton pour lancer la segmentation
         if st.button("Lancer la segmentation"):
-            # Réinitialiser les résultats
+            print("🖱️ Bouton cliqué !")  # Debug
+
+            # Réinitialiser le résultat précédent
             st.session_state.segmentation_result = None
 
-            # Démarrer un thread pour la segmentation
-            thread = threading.Thread(target=run_segmentation, args=(model_choice, tensor_image, original_size))
-            thread.start()
+            # 🔹 Afficher un spinner pendant l'exécution
+            with st.spinner("Segmentation en cours..."):
+                run_segmentation(model_choice, tensor_image, original_size)
+
+            print("✅ Segmentation terminée !")  # Debug
+
 
         # 🔹 Affichage du statut
         if st.session_state.processing:
