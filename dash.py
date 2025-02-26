@@ -50,6 +50,11 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Initialisation des variables dans session_state si elles n'existent pas encore
+for var in ["overlay_fpn", "overlay_convnext"]:
+    if var not in st.session_state:
+        st.session_state[var] = None
+        
 # 🔹 Configuration du bucket GCS (Public)
 BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
