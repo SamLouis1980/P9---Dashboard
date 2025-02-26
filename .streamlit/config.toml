@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#1E90FF"  # Bleu clair pour les boutons et éléments interactifs
+backgroundColor="#000000"  # Fond noir
+secondaryBackgroundColor="#121212"  # Fond des éléments secondaires (sidebar, boîtes)
+textColor="#FFFFFF"  # Texte blanc
+font="sans serif"
