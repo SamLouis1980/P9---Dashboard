@@ -196,8 +196,15 @@ def run_segmentation(model_choice, tensor_image, original_size):
     # Stocker le résultat et arrêter le mode "en cours"
     st.session_state.segmentation_result = mask_colorized
     st.session_state.processing = False
-    print("✅ Segmentation terminée.")  # Ajout pour debug
-    
+    print("Segmentation terminée.")  # Ajout pour debug
+
+# Initialisation des variables dans session_state si elles n'existent pas encore
+if "segmentation_fpn" not in st.session_state:
+    st.session_state.segmentation_fpn = None
+
+if "segmentation_convnext" not in st.session_state:
+    st.session_state.segmentation_convnext = None
+
 # 🔹 Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
@@ -229,11 +236,11 @@ if page == "Test des modèles":
             with st.spinner("Segmentation en cours..."):
                 run_segmentation(tensor_image, original_size)
 
-            print("✅ Segmentation terminée !")  # Debug
+            print("Segmentation terminée !")  # Debug
 
         # 🔹 Affichage du statut
         if st.session_state.processing:
-            st.info("⏳ Segmentation en cours... Vous pouvez naviguer librement.")
+            st.info("Segmentation en cours... Vous pouvez naviguer librement.")
 
         # 🔹 Afficher les images segmentées superposées uniquement si elles existent
         if st.session_state.segmentation_fpn is not None and st.session_state.segmentation_convnext is not None:
@@ -246,4 +253,4 @@ if page == "Test des modèles":
                 st.image(st.session_state.segmentation_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
 
     except Exception as e:
-        st.error(f"❌ Erreur lors du chargement des images : {e}")
+        st.error(f"Erreur lors du chargement des images : {e}")
