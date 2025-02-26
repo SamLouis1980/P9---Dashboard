@@ -236,8 +236,6 @@ if page == "Test des modèles":
             print("🖱️ Bouton cliqué !")  # Debug
 
             # Réinitialiser les résultats précédents
-            st.session_state.segmentation_fpn = None
-            st.session_state.segmentation_convnext = None
             st.session_state.overlay_fpn = None
             st.session_state.overlay_convnext = None
 
@@ -254,35 +252,27 @@ if page == "Test des modèles":
                     mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
                     mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
 
-                    # Superposition des masques sur l'image d'origine
+                    # ✅ Superposition des masques sur l'image d'origine
                     overlay_fpn = Image.blend(image, mask_fpn_colorized, alpha=0.5)  # Transparence 50%
                     overlay_convnext = Image.blend(image, mask_convnext_colorized, alpha=0.5)  # Transparence 50%
 
-                # Sauvegarder les résultats dans la session
-                st.session_state.segmentation_fpn = mask_fpn_colorized
-                st.session_state.segmentation_convnext = mask_convnext_colorized
+                # ✅ Sauvegarder uniquement les superpositions dans la session
                 st.session_state.overlay_fpn = overlay_fpn
                 st.session_state.overlay_convnext = overlay_convnext
 
-                # Libérer la mémoire après inférence
+                # ✅ Libérer la mémoire après inférence
                 torch.cuda.empty_cache()
                 del tensor_image, output_fpn, output_convnext
                 gc.collect()
 
             print("Segmentation terminée !")  # Debug
 
-        # 🔹 Affichage des résultats si disponibles
-        if st.session_state.segmentation_fpn is not None and st.session_state.segmentation_convnext is not None:
+        # 🔹 Affichage des superpositions uniquement
+        if st.session_state.overlay_fpn is not None and st.session_state.overlay_convnext is not None:
             col1, col2 = st.columns(2)
             with col1:
-                st.image(st.session_state.segmentation_fpn, caption="Masque segmenté - FPN", use_container_width=True)
-            with col2:
-                st.image(st.session_state.segmentation_convnext, caption="Masque segmenté - ConvNeXt", use_container_width=True)
-
-            col3, col4 = st.columns(2)
-            with col3:
                 st.image(st.session_state.overlay_fpn, caption="Superposition - FPN", use_container_width=True)
-            with col4:
+            with col2:
                 st.image(st.session_state.overlay_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
 
     except Exception as e:
