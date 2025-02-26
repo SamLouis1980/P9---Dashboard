@@ -203,7 +203,7 @@ def run_segmentation(tensor_image, original_size):
 
     # Forcer la mise à jour de l'interface
     time.sleep(0.5)  # Petit délai pour éviter une mise à jour trop rapide
-    st.experimental_rerun()
+    st.rerun()
 
 # Initialisation des variables dans session_state si elles n'existent pas encore
 if "segmentation_fpn" not in st.session_state:
@@ -246,7 +246,7 @@ if page == "Test des modèles":
             print("Segmentation lancée en arrière-plan !")  # Debug
 
             # Mise à jour immédiate pour voir le statut "en cours"
-            st.experimental_rerun()
+            st.rerun()
 
         # 🔹 Affichage du statut
         if st.session_state.processing:
