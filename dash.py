@@ -84,7 +84,6 @@ def load_models():
 
 # Charger les modèles
 fpn_model, convnext_model = load_models()
-st.write("✅ Modèles chargés avec succès.")
 
 # 🔹 Liste manuelle des images (évite les appels à GCS)
 @st.cache_data
@@ -204,7 +203,6 @@ if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
-    model_choice = st.radio("Choisissez le modèle", ["FPN", "ConvNext"])
 
     # 🔹 URL de l’image et du masque réel
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
@@ -221,27 +219,47 @@ if page == "Test des modèles":
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
-        # 🔹 Bouton pour lancer la segmentation
+        # 🔹 Bouton pour lancer la segmentation avec les deux modèles
         if st.button("Lancer la segmentation"):
             print("🖱️ Bouton cliqué !")  # Debug
 
-            # Réinitialiser le résultat précédent
-            st.session_state.segmentation_result = None
+            # Réinitialiser les résultats précédents
+            st.session_state.segmentation_fpn = None
+            st.session_state.segmentation_convnext = None
 
-            # 🔹 Afficher un spinner pendant l'exécution
+            # 🔹 Exécuter la segmentation en parallèle
             with st.spinner("Segmentation en cours..."):
-                run_segmentation(model_choice, tensor_image, original_size)
+                with torch.no_grad():
+                    # FPN - Prédiction et post-traitement
+                    output_fpn = fpn_model(tensor_image)  # FPN en FP32
+                    mask_fpn = torch.argmax(output_fpn, dim=1).squeeze().cpu().numpy()
+                    mask_fpn_colorized = resize_and_colorize_mask(mask_fpn, original_size, CLASS_COLORS)
+
+                    # ConvNeXt - Prédiction et post-traitement
+                    output_convnext = convnext_model(tensor_image.half())  # ConvNeXt en FP16
+                    mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
+                    mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
+
+                # ✅ Sauvegarder les résultats dans la session
+                st.session_state.segmentation_fpn = mask_fpn_colorized
+                st.session_state.segmentation_convnext = mask_convnext_colorized
+
+                # ✅ Libérer la mémoire après inférence
+                torch.cuda.empty_cache()
+                del tensor_image, output_fpn, output_convnext
+                gc.collect()
 
             print("✅ Segmentation terminée !")  # Debug
 
+        # 🔹 Affichage des résultats si disponibles
+        if st.session_state.segmentation_fpn is not None and st.session_state.segmentation_convnext is not None:
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.image(st.session_state.segmentation_fpn, caption="Masque segmenté - FPN", use_container_width=True)
 
-        # 🔹 Affichage du statut
-        if st.session_state.processing:
-            st.info("⏳ Segmentation en cours... Vous pouvez naviguer librement.")
-
-        # 🔹 Afficher le résultat de la segmentation une fois prêt
-        if st.session_state.segmentation_result is not None:
-            st.image(st.session_state.segmentation_result, caption="Masque segmenté", use_container_width=True)
+            with col2:
+                st.image(st.session_state.segmentation_convnext, caption="Masque segmenté - ConvNeXt", use_container_width=True)
 
         # 🔹 Chargement et affichage du masque réel
         real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
