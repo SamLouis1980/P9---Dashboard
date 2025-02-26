@@ -272,3 +272,10 @@ if page == "Test des modèles":
                 st.image(st.session_state.overlay_fpn, caption="Superposition - FPN", use_container_width=True)
             with col4:
                 st.image(st.session_state.overlay_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
+
+        # 🔹 Chargement et affichage du masque réel
+        real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
+        st.image(real_mask, caption="Masque réel", use_container_width=True)
+
+    except Exception as e:
+        st.error(f"❌ Erreur lors du chargement des images : {e}")
