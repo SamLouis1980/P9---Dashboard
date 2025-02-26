@@ -179,8 +179,8 @@ if page == "Résultats des modèles":
     st.plotly_chart(fig)
 
 def run_segmentation(tensor_image, original_size):
-    """Exécute la segmentation avec les deux modèles en parallèle."""
-    print("🚀 Début de la segmentation...")  # Debug
+    """Exécute la segmentation avec les deux modèles en parallèle et met à jour l'interface."""
+    print("Début de la segmentation...")  # Debug
     st.session_state.processing = True  
 
     with torch.no_grad():
@@ -200,6 +200,10 @@ def run_segmentation(tensor_image, original_size):
     st.session_state.processing = False
 
     print("Segmentation terminée.")  # Debug
+
+    # Forcer la mise à jour de l'interface
+    time.sleep(0.5)  # Petit délai pour éviter une mise à jour trop rapide
+    st.experimental_rerun()
 
 # Initialisation des variables dans session_state si elles n'existent pas encore
 if "segmentation_fpn" not in st.session_state:
