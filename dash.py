@@ -218,49 +218,78 @@ if page == "Test des modèles":
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
-    # 🔹 URL de l’image d’entrée
+    # 🔹 URL de l’image et du masque réel
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
+    mask_filename = image_choice.replace("leftImg8bit", "gtFine_color")
+    mask_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask_filename}"
 
     try:
         # 🔹 Chargement et affichage de l’image d’entrée
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
-        # 🔹 Prétraitement avant segmentation
+        # 🔹 Prétraitement de l’image avant passage dans le modèle
         input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
-        # 🔹 Bouton pour lancer la segmentation
+        # 🔹 Bouton pour lancer la segmentation avec les deux modèles
         if st.button("Lancer la segmentation"):
-            print("Bouton cliqué !")  # Debug
+            print("🖱️ Bouton cliqué !")  # Debug
 
             # Réinitialiser les résultats précédents
             st.session_state.segmentation_fpn = None
             st.session_state.segmentation_convnext = None
-            st.session_state.processing = True
+            st.session_state.overlay_fpn = None
+            st.session_state.overlay_convnext = None
 
-            # Lancer la segmentation en arrière-plan avec mise à jour dynamique
-            threading.Thread(target=run_segmentation, args=(tensor_image, original_size), daemon=True).start()
+            # 🔹 Exécuter la segmentation en parallèle
+            with st.spinner("Segmentation en cours..."):
+                with torch.no_grad():
+                    # FPN - Prédiction et post-traitement
+                    output_fpn = fpn_model(tensor_image)  # FPN en FP32
+                    mask_fpn = torch.argmax(output_fpn, dim=1).squeeze().cpu().numpy()
+                    mask_fpn_colorized = resize_and_colorize_mask(mask_fpn, original_size, CLASS_COLORS)
 
-            print("Segmentation lancée en arrière-plan !")  # Debug
+                    # ConvNeXt - Prédiction et post-traitement
+                    output_convnext = convnext_model(tensor_image.half())  # ConvNeXt en FP16
+                    mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
+                    mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
 
-            # Mise à jour immédiate pour voir le statut "en cours"
-            st.rerun()
+                    # ✅ Superposition des masques sur l'image d'origine
+                    overlay_fpn = Image.blend(image, mask_fpn_colorized, alpha=0.5)  # Transparence 50%
+                    overlay_convnext = Image.blend(image, mask_convnext_colorized, alpha=0.5)  # Transparence 50%
 
-        # 🔹 Affichage du statut
-        if st.session_state.processing:
-            st.info("Segmentation en cours... Vous pouvez naviguer librement.")
+                # ✅ Sauvegarder les résultats dans la session
+                st.session_state.segmentation_fpn = mask_fpn_colorized
+                st.session_state.segmentation_convnext = mask_convnext_colorized
+                st.session_state.overlay_fpn = overlay_fpn
+                st.session_state.overlay_convnext = overlay_convnext
 
-        # 🔹 Afficher les images segmentées superposées uniquement si elles existent
+                # ✅ Libérer la mémoire après inférence
+                torch.cuda.empty_cache()
+                del tensor_image, output_fpn, output_convnext
+                gc.collect()
+
+            print("✅ Segmentation terminée !")  # Debug
+
+        # 🔹 Affichage des résultats si disponibles
         if st.session_state.segmentation_fpn is not None and st.session_state.segmentation_convnext is not None:
             col1, col2 = st.columns(2)
-            
             with col1:
-                st.image(st.session_state.segmentation_fpn, caption="Superposition - FPN", use_container_width=True)
-
+                st.image(st.session_state.segmentation_fpn, caption="Masque segmenté - FPN", use_container_width=True)
             with col2:
-                st.image(st.session_state.segmentation_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
+                st.image(st.session_state.segmentation_convnext, caption="Masque segmenté - ConvNeXt", use_container_width=True)
+
+            col3, col4 = st.columns(2)
+            with col3:
+                st.image(st.session_state.overlay_fpn, caption="Superposition - FPN", use_container_width=True)
+            with col4:
+                st.image(st.session_state.overlay_convnext, caption="Superposition - ConvNeXt", use_container_width=True)
+
+        # 🔹 Chargement et affichage du masque réel
+        real_mask = Image.open(urllib.request.urlopen(mask_url)).convert("RGB")
+        st.image(real_mask, caption="Masque réel", use_container_width=True)
 
     except Exception as e:
-        st.error(f"Erreur lors du chargement des images : {e}")
+        st.error(f"❌ Erreur lors du chargement des images : {e}")
