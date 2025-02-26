@@ -16,6 +16,38 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
+st.markdown(
+    """
+    <style>
+        /* Changer la couleur des titres */
+        h1, h2, h3, h4, h5, h6 {
+            color: #1E90FF !important;
+        }
+
+        /* Style des tableaux */
+        table {
+            background-color: #121212 !important;
+            color: #FFFFFF !important;
+            border-radius: 10px;
+        }
+
+        /* Style des images pour les rendre visibles */
+        img {
+            border-radius: 10px;
+            background-color: #000000;
+        }
+
+        /* Style des boutons */
+        button {
+            background-color: #1E90FF !important;
+            color: #FFFFFF !important;
+            border-radius: 5px;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # 🔹 Configuration du bucket GCS (Public)
 BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
