@@ -256,7 +256,7 @@ if page == "Test des modèles":
             col1, col2 = st.columns(2)
             
             with col1:
-                st.image(st.session_state.segmentation_fpn, caption="Masque segmenté - FPN", use_container_width=True)
+                st.image(st.session_state.segmentation_fpn, caption="Masque segmenté - Resnet", use_container_width=True)
 
             with col2:
                 st.image(st.session_state.segmentation_convnext, caption="Masque segmenté - ConvNeXt", use_container_width=True)
