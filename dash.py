@@ -181,6 +181,7 @@ if page == "Résultats des modèles":
 
 def run_segmentation(model_choice, tensor_image, original_size):
     """Exécute la segmentation en arrière-plan"""
+    print("🚀 Début de la segmentation...")  # Ajout pour debug
     st.session_state.processing = True  # Indique que la segmentation est en cours
     time.sleep(1)  # Simule un petit délai avant exécution
 
@@ -196,7 +197,8 @@ def run_segmentation(model_choice, tensor_image, original_size):
     # Stocker le résultat et arrêter le mode "en cours"
     st.session_state.segmentation_result = mask_colorized
     st.session_state.processing = False
-
+    print("✅ Segmentation terminée.")  # Ajout pour debug
+    
 # 🔹 Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
