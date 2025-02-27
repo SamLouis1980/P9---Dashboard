@@ -121,9 +121,15 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# 🔹 Sidebar Navigation
-st.sidebar.title("Menu")
-page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
+st.set_page_config(layout="wide")
+
+# 🔹 Menu déroulant en haut
+with st.container():
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.title("Dashboard de Segmentation d'Images")
+    with col2:
+        page = st.selectbox("Sélectionnez une section :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
 # 🔹 Page EDA
 # 🔹 URL du fichier CSV stocké sur Google Cloud Storage
