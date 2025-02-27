@@ -232,13 +232,13 @@ if page == "Test des modèles":
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
         # 🔹 Prétraitement de l’image avant passage dans le modèle
-        input_size = (256, 256)
+        input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # 🔹 Bouton pour lancer la segmentation avec les deux modèles
         if st.button("Lancer la segmentation"):
-            print("🖱️ Bouton cliqué !")  # Debug
+            print("Bouton cliqué !")  # Debug
 
             # Réinitialiser les résultats précédents
             st.session_state.overlay_fpn = None
@@ -257,15 +257,15 @@ if page == "Test des modèles":
                     mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
                     mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
 
-                    # ✅ Superposition des masques sur l'image d'origine
+                    # Superposition des masques sur l'image d'origine
                     overlay_fpn = Image.blend(image, mask_fpn_colorized, alpha=0.5)  # Transparence 50%
                     overlay_convnext = Image.blend(image, mask_convnext_colorized, alpha=0.5)  # Transparence 50%
 
-                # ✅ Sauvegarder uniquement les superpositions dans la session
+                # Sauvegarder uniquement les superpositions dans la session
                 st.session_state.overlay_fpn = overlay_fpn
                 st.session_state.overlay_convnext = overlay_convnext
 
-                # ✅ Libérer la mémoire après inférence
+                # Libérer la mémoire après inférence
                 torch.cuda.empty_cache()
                 del tensor_image, output_fpn, output_convnext
                 gc.collect()
