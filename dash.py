@@ -139,27 +139,32 @@ st.title("Exploratory Data Analysis (EDA)")
 df_classes = load_class_distribution()
 
 # 🔹 Slider interactif pour filtrer le nombre de classes affichées
-num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=5)
+num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=1)
 df_filtered = df_classes.head(num_classes)
 
-# 🔹 Affichage du tableau interactif
-st.write("### Distribution des Classes dans Cityscapes")
-st.dataframe(df_filtered, use_container_width=True)
+# 🔹 Disposition en colonnes
+col1, col2 = st.columns([1, 1])
 
-# 🔹 Création du graphique interactif
-fig = px.bar(
-    df_filtered,
-    x="Class Name", 
-    y="Pixel Count", 
-    title="Répartition des Pixels par Classe",
-    labels={"Pixel Count": "Nombre de Pixels", "Class Name": "Classe"},
-    color="Pixel Count",
-    color_continuous_scale="blues"
-)
-fig.update_layout(xaxis_tickangle=-45)
+with col1:
+    # 🔹 Affichage du tableau interactif
+    st.write("### Distribution des Classes dans Cityscapes")
+    st.dataframe(df_filtered, use_container_width=True)
 
-# 🔹 Affichage du graphique interactif
-st.plotly_chart(fig)
+with col2:
+    # 🔹 Création du graphique interactif
+    fig = px.bar(
+        df_filtered,
+        x="Class Name", 
+        y="Pixel Count", 
+        title="Répartition des Pixels par Classe",
+        labels={"Pixel Count": "Nombre de Pixels", "Class Name": "Classe"},
+        color="Pixel Count",
+        color_continuous_scale="blues"
+    )
+    fig.update_layout(xaxis_tickangle=-45)
+    
+    # 🔹 Affichage du graphique interactif
+    st.plotly_chart(fig)
 
 # 🔹 Page Résultats des modèles
 @st.cache_data
