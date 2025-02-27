@@ -29,7 +29,7 @@ class FPN_Segmenter(nn.Module):
         fpn_features = self.fpn_backbone(x)
         p2 = fpn_features['0']
         output = self.final_conv(p2)
-        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+        output = F.interpolate(output, size=(512, 512), mode="bicubic", align_corners=False)
         return output
 
 # 🔹 Définition du modèle FPN + Resnet50
@@ -82,7 +82,7 @@ class FPN_ConvNeXtV2_Segmenter(nn.Module):
         output = self.final_conv(output)
 
         # Upsample à la taille de l'image d'entrée (512x512)
-        output = F.interpolate(output, size=(512, 512), mode="bilinear", align_corners=False)
+        output = F.interpolate(output, size=(512, 512), mode="bicubic", align_corners=False)
 
         return output
 
