@@ -19,6 +19,8 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
+st.set_page_config(layout="wide")
+
 st.markdown(
     """
     <style>
@@ -120,8 +122,6 @@ if "segmentation_result" not in st.session_state:
     st.session_state.segmentation_result = None
 if "processing" not in st.session_state:
     st.session_state.processing = False
-
-st.set_page_config(layout="wide")
 
 # 🔹 Menu déroulant en haut
 with st.container():
