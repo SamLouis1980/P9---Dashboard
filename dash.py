@@ -131,6 +131,7 @@ if "processing" not in st.session_state:
 st.markdown(
     """
     <style>
+        /* Barre de navigation */
         .navbar {
             display: flex;
             justify-content: space-between;
@@ -138,37 +139,62 @@ st.markdown(
             background-color: #1e1e1e;
             padding: 10px 20px;
             border-radius: 8px;
+            height: 50px;
         }
+
+        /* Style du titre */
         .navbar h1 {
             color: #1E90FF;
             font-size: 24px;
             margin: 0;
         }
+
+        /* Conteneur du menu */
         .menu-container {
             display: flex;
             align-items: center;
         }
+
+        /* Texte "Menu" */
         .menu-label {
             color: white;
             font-size: 18px;
             margin-right: 10px;
         }
-        .stSelectbox {
-            width: 180px !important;
+
+        /* Ajustement du style du selectbox */
+        div[data-baseweb="select"] {
+            width: 200px !important;
         }
     </style>
-    
+
     <div class="navbar">
         <h1>Dashboard</h1>
         <div class="menu-container">
             <span class="menu-label">Menu</span>
-            <div class="stSelectbox">
-                """, unsafe_allow_html=True)
+            <div id="menu-placeholder"></div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
-# Sélection du menu
+# Affichage du menu de sélection dans le bon emplacement
 page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
 
-st.markdown("</div></div></div>", unsafe_allow_html=True)
+# Ajout d'un script JS pour insérer le selectbox dans la div "menu-placeholder"
+st.markdown(
+    """
+    <script>
+        var menu = window.parent.document.querySelectorAll('section.main div[data-testid="stSelectbox"]');
+        var placeholder = window.parent.document.getElementById('menu-placeholder');
+        if (menu.length > 0 && placeholder) {
+            placeholder.appendChild(menu[0]);
+        }
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 # Page EDA
 if page == "EDA":
