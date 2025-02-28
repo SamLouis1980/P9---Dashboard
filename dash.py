@@ -128,62 +128,18 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Barre de navigation en haut
-st.markdown(
-    """
-    <style>
-        /* Barre de navigation */
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1e1e1e;
-            padding: 10px 20px;
-            border-radius: 8px;
-            height: 50px;
-            margin-bottom: 20px;
-        }
-
-        /* Style du titre */
-        .navbar h1 {
-            color: #1E90FF;
-            font-size: 24px;
-            margin: 0;
-        }
-
-        /* Conteneur du menu */
-        .menu-container {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Texte "Menu" */
-        .menu-label {
-            color: white;
-            font-size: 18px;
-            margin-right: 10px;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-# 🔹 Création de la barre de navigation avec st.columns
-col1, col2 = st.columns([3, 1])  # Divise l'espace en deux colonnes
+# 🔹 Création de la barre de menu avec trois colonnes
+col1, col2, col3 = st.columns([2, 1, 2])
 
 with col1:
-    st.markdown('<div class="navbar"><h1>Dashboard</h1></div>', unsafe_allow_html=True)
+    st.markdown("### Dashboard")
 
 with col2:
-    st.markdown(
-        """
-        <div class="menu-container">
-            <span class="menu-label">Menu</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
+    st.markdown("### Menu")
 
+with col3:
+    page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection")
+    
 # Page EDA
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
