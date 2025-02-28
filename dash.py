@@ -21,6 +21,9 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
+# 🔹 Titre principal
+st.title("Dashboard")
+
 st.markdown(
     """
     <style>
@@ -125,11 +128,11 @@ if "processing" not in st.session_state:
 
 # 🔹 Menu en haut
 with st.container():
-    col1, col2 = st.columns([3, 1])  # 3/4 pour le titre, 1/4 pour le menu
+    col1, col2 = st.columns([0.15, 1])  # Ajustement des colonnes (0.15 pour "Menu", 1 pour le selectbox)
     with col1:
-        st.markdown("### Menu")  # Garde le mot "Menu"
+        st.markdown("### Menu")  # Texte "Menu" aligné à gauche
     with col2:
-        page = st.selectbox("Sélectionnez une section :", ["EDA", "Résultats des modèles", "Test des modèles"])
+        page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"])  # Menu déroulant
 
 # Page EDA
 if page == "EDA":
