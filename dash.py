@@ -206,6 +206,11 @@ if page == "Menu":
         )
     
 # 🔹 Page EDA
+
+# 🔹 Génération des URLs complètes des images et masques en utilisant les variables existantes
+image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{img}" for img in available_images]
+mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}" for mask in available_masks]
+
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
 
@@ -268,6 +273,23 @@ if page == "EDA":
         st.plotly_chart(fig)
         st.markdown("</div>", unsafe_allow_html=True)
 
+    st.markdown("### 🎠 Exemples d'Images et Masques Segmentés")
+    
+    # Sélecteur d’image avec un slider
+    img_index = st.slider("Sélectionnez une image :", min_value=0, max_value=len(image_urls)-1, value=0)
+
+    # Chargement des images sélectionnées
+    image = Image.open(urllib.request.urlopen(image_urls[img_index]))
+    mask = Image.open(urllib.request.urlopen(mask_urls[img_index]))
+
+    # Affichage en deux colonnes
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.image(image, caption="📸 Image originale", use_column_width=True)
+
+    with col2:
+        st.image(mask, caption="🎭 Masque segmenté", use_column_width=True)
 
 # Page Résultats des modèles
 @st.cache_data
