@@ -66,6 +66,7 @@ for var in ["overlay_fpn", "overlay_convnext"]:
 BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
 MASK_FOLDER = "Dataset/masks"
+AUGMENTED_FOLDER = "Dataset/transformed_images"
 
 # Chemins vers les modèles sur GCS
 FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
@@ -117,9 +118,17 @@ def get_available_images_and_masks():
         "lindau_000005_000019_gtFine_color.png",
     ]
 
-    return available_images, available_masks
+    available_augmented_images = [
+        "lindau_000001_000019_augmented.png",
+        "lindau_000002_000019_augmented.png",
+        "lindau_000003_000019_augmented.png",
+        "lindau_000004_000019_augmented.png",
+        "lindau_000005_000019_augmented.png",
+    ]
+    
+    return available_images, available_masks, available_augmented_images
 
-available_images, available_masks = get_available_images_and_masks()
+available_images, available_masks, available_augmented_images = get_available_images_and_masks()
 
 # Stocker les résultats de segmentation et l'état du traitement
 if "segmentation_result" not in st.session_state:
@@ -210,7 +219,6 @@ if page == "Menu":
 # 🔹 Génération des URLs complètes des images et masques en utilisant les variables existantes
 image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{img}" for img in available_images]
 mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}" for mask in available_masks]
-# 🔹 Génération des URLs complètes des images augmentées
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
 if page == "EDA":
@@ -298,16 +306,23 @@ if page == "EDA":
     st.markdown("### 🎭 Effets de la Data Augmentation")
 
     # Sélecteur d’image avec un slider
-    img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
+img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
 
-    # Chargement des images sélectionnées
-    original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
-    augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
+# Chargement des images sélectionnées
+original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
+augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Affichage en deux colonnes équilibrées
+# 🔹 Ajustement des tailles : on garde la même hauteur pour les deux images
+original_width, original_height = original_image.size
+aspect_ratio_aug = augmented_image.width / augmented_image.height
+new_augmented_width = int(original_height * aspect_ratio_aug)  # Ajuster la largeur en fonction du ratio original
+
+augmented_image = augmented_image.resize((new_augmented_width, original_height))  # Adapter la largeur
+
+# 🔹 Affichage en deux colonnes équilibrées
 col1, col2 = st.columns([1, 1])
 
-# Définition d'un style CSS pour forcer la même hauteur sans déformer l'image
+# 🔹 Définition d'un style CSS pour aligner correctement les images
 st.markdown("""
     <style>
     .equal-height {
@@ -316,7 +331,8 @@ st.markdown("""
         align-items: center;
     }
     .equal-height img {
-        height: 380px; /* Ajuste cette valeur en fonction de l'image originale */
+        height: auto;  /* Garde la hauteur identique */
+        max-height: 400px; /* Valeur ajustable pour uniformiser */
         width: auto;   /* Garde le ratio naturel */
     }
     </style>
