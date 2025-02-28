@@ -140,6 +140,7 @@ st.markdown(
             padding: 10px 20px;
             border-radius: 8px;
             height: 50px;
+            margin-bottom: 20px;
         }
 
         /* Style du titre */
@@ -179,17 +180,17 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# Affichage du menu de sélection dans le bon emplacement
+# 🔹 Sélection du menu avec position forcée dans la barre
 page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
 
-# Ajout d'un script JS pour insérer le selectbox dans la div "menu-placeholder"
+# 🔹 Correction du placement en utilisant le script JS
 st.markdown(
     """
     <script>
-        var menu = window.parent.document.querySelectorAll('section.main div[data-testid="stSelectbox"]');
+        var selectbox = window.parent.document.querySelectorAll('section.main div[data-testid="stSelectbox"]');
         var placeholder = window.parent.document.getElementById('menu-placeholder');
-        if (menu.length > 0 && placeholder) {
-            placeholder.appendChild(menu[0]);
+        if (selectbox.length > 0 && placeholder) {
+            placeholder.appendChild(selectbox[0]);
         }
     </script>
     """,
