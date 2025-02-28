@@ -332,7 +332,7 @@ if page == "EDA":
     """, unsafe_allow_html=True)
 
     # 🔹 Affichage en deux colonnes équilibrées
-    col1, col2 = st.columns([1, 0.5])
+    col1, col2 = st.columns([1, 1])
 
     with col1:
         st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
