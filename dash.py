@@ -126,13 +126,47 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# 🔹 Menu en haut
-with st.container():
-    col1, col2 = st.columns([0.15, 1])  # Ajustement des colonnes (0.15 pour "Menu", 1 pour le selectbox)
-    with col1:
-        st.markdown("### Menu")  # Texte "Menu" aligné à gauche
-    with col2:
-        page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"])  # Menu déroulant
+# 🔹 Barre de navigation en haut
+st.markdown(
+    """
+    <style>
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: #1E1E1E;
+            border-bottom: 2px solid #444;
+        }
+        .top-bar h1 {
+            color: #1E90FF;
+            font-size: 24px;
+            margin: 0;
+        }
+        .menu-container {
+            display: flex;
+            align-items: center;
+        }
+        .menu-label {
+            color: white;
+            font-size: 18px;
+            margin-right: 10px;
+        }
+    </style>
+    
+    <div class="top-bar">
+        <h1>Dashboard</h1>
+        <div class="menu-container">
+            <span class="menu-label">Menu</span>
+            <div id="menu-placeholder"></div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+# 🔹 Insérer le menu déroulant dans l'espace prévu
+page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
 
 # Page EDA
 if page == "EDA":
