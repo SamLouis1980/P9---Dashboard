@@ -222,6 +222,9 @@ if page == "EDA":
     num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=5)
     df_filtered = df_classes.head(num_classes)
 
+    # 🔹 Titre unique pour l'ensemble des blocs
+    st.markdown("### 📊 Distribution des Classes dans Cityscapes")
+
     # 🔹 Affichage en 2 colonnes (tableau à gauche, graphique à droite)
     col1, col2 = st.columns(2)
 
@@ -233,11 +236,10 @@ if page == "EDA":
                 padding: 15px;
                 border-radius: 10px;
                 color: white;">
-                <h3 style="text-align: center;">📊 Distribution des Classes</h3>
-            </div>
             """, unsafe_allow_html=True
         )
         st.dataframe(df_filtered, use_container_width=True)
+        st.markdown("</div>", unsafe_allow_html=True)
 
     with col2:
         st.markdown(
@@ -247,8 +249,6 @@ if page == "EDA":
                 padding: 15px;
                 border-radius: 10px;
                 color: white;">
-                <h3 style="text-align: center;">📈 Répartition des Pixels</h3>
-            </div>
             """, unsafe_allow_html=True
         )
         # 🔹 Création du graphique interactif avec Plotly
@@ -257,7 +257,7 @@ if page == "EDA":
             df_filtered,
             x="Class Name", 
             y="Pixel Count", 
-            title="Répartition des Pixels par Classe",
+            title="",
             labels={"Pixel Count": "Nombre de Pixels", "Class Name": "Classe"},
             color="Pixel Count",
             color_continuous_scale="blues"
@@ -266,6 +266,7 @@ if page == "EDA":
 
         # 🔹 Affichage du graphique interactif
         st.plotly_chart(fig)
+        st.markdown("</div>", unsafe_allow_html=True)
 
 
 # Page Résultats des modèles
