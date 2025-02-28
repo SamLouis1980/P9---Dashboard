@@ -306,47 +306,47 @@ if page == "EDA":
     st.markdown("### 🎭 Effets de la Data Augmentation")
 
     # Sélecteur d’image avec un slider
-img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
+    img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
 
-# Chargement des images sélectionnées
-original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
-augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
+    # Chargement des images sélectionnées
+    original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
+    augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-# 🔹 Ajustement des tailles : on garde la même hauteur pour les deux images
-original_width, original_height = original_image.size
-aspect_ratio_aug = augmented_image.width / augmented_image.height
-new_augmented_width = int(original_height * aspect_ratio_aug)  # Ajuster la largeur en fonction du ratio original
+    # 🔹 Ajustement des tailles : on garde la même hauteur pour les deux images
+    original_width, original_height = original_image.size
+    aspect_ratio_aug = augmented_image.width / augmented_image.height
+    new_augmented_width = int(original_height * aspect_ratio_aug)  # Ajuster la largeur en fonction du ratio original
 
-augmented_image = augmented_image.resize((new_augmented_width, original_height))  # Adapter la largeur
+    augmented_image = augmented_image.resize((new_augmented_width, original_height))  # Adapter la largeur
 
-# 🔹 Affichage en deux colonnes équilibrées
-col1, col2 = st.columns([1, 1])
+    # 🔹 Affichage en deux colonnes équilibrées
+    col1, col2 = st.columns([1, 1])
 
-# 🔹 Définition d'un style CSS pour aligner correctement les images
-st.markdown("""
-    <style>
-    .equal-height {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-    .equal-height img {
-        height: auto;  /* Garde la hauteur identique */
-        max-height: 400px; /* Valeur ajustable pour uniformiser */
-        width: auto;   /* Garde le ratio naturel */
-    }
-    </style>
-""", unsafe_allow_html=True)
+    # 🔹 Définition d'un style CSS pour aligner correctement les images
+    st.markdown("""
+        <style>
+        .equal-height {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .equal-height img {
+            height: auto;  /* Garde la hauteur identique */
+            max-height: 400px; /* Valeur ajustable pour uniformiser */
+            width: auto;   /* Garde le ratio naturel */
+        }
+        </style>
+    """, unsafe_allow_html=True)
 
-with col1:
-    st.markdown('<div class="equal-height">', unsafe_allow_html=True)
-    st.image(original_image, caption="📸 Image originale", use_container_width=False)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col1:
+        st.markdown('<div class="equal-height">', unsafe_allow_html=True)
+        st.image(original_image, caption="📸 Image originale", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-with col2:
-    st.markdown('<div class="equal-height">', unsafe_allow_html=True)
-    st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        st.markdown('<div class="equal-height">', unsafe_allow_html=True)
+        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # Page Résultats des modèles
 @st.cache_data
