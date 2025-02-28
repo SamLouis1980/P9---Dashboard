@@ -305,21 +305,22 @@ if page == "EDA":
     # 🔹 Affichage du carrousel interactif des images augmentées
     st.markdown("### 🎭 Effets de la Data Augmentation")
 
-    # Sélecteur d’image avec un slider
+    # Sélecteur d’image avec un slider (on réduit l’espace en dessous)
     img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
+    st.markdown("<style>div.row-widget.stSlider {margin-bottom: -20px;}</style>", unsafe_allow_html=True)  # Réduction de l'espace sous le slider
 
     # Chargement des images sélectionnées
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Définition d'un style CSS pour fixer la hauteur et centrer l'image augmentée
+    # 🔹 Ajustement CSS pour avoir deux images bien alignées et centrées
     st.markdown("""
         <style>
         .image-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 400px; /* Fixe une hauteur identique */
+            height: 350px; /* Hauteur uniforme pour toutes les images */
             overflow: hidden;
             padding: 10px;
         }
@@ -329,21 +330,23 @@ if page == "EDA":
             display: block;
             margin: auto; /* Centre parfaitement l'image */
         }
-        </style>
+    </style>
     """, unsafe_allow_html=True)
 
     # 🔹 Affichage en deux colonnes équilibrées
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        st.image(original_image, caption="📸 Image originale", use_container_width=True)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container():
+            st.markdown('<div class="image-container">', unsafe_allow_html=True)
+            st.image(original_image, caption="📸 Image originale", use_container_width=True)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="image-container">', unsafe_allow_html=True)
-        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
-        st.markdown('</div>', unsafe_allow_html=True)
+        with st.container():
+            st.markdown('<div class="image-container">', unsafe_allow_html=True)
+            st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
+            st.markdown('</div>', unsafe_allow_html=True)
 
 # Page Résultats des modèles
 @st.cache_data
