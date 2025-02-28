@@ -173,21 +173,29 @@ st.markdown(
         <h1>Dashboard</h1>
         <div class="menu-container">
             <span class="menu-label">Menu</span>
-            <!-- Le menu déroulant sera inséré ici via st.columns -->
+            <div id="menu-placeholder"></div>
         </div>
     </div>
     """,
     unsafe_allow_html=True
 )
 
-# 🔹 Utilisation de st.columns pour aligner le texte et le menu déroulant
-col1, col2 = st.columns([1, 3])
+# 🔹 Sélection du menu avec position forcée dans la barre
+page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
 
-with col1:
-    st.markdown('<span class="menu-label">Menu</span>', unsafe_allow_html=True)
-
-with col2:
-    page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
+# 🔹 Correction du placement en utilisant le script JS
+st.markdown(
+    """
+    <script>
+        var selectbox = window.parent.document.querySelectorAll('section.main div[data-testid="stSelectbox"]');
+        var placeholder = window.parent.document.getElementById('menu-placeholder');
+        if (selectbox.length > 0 && placeholder) {
+            placeholder.appendChild(selectbox[0]);
+        }
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 # Page EDA
 if page == "EDA":
