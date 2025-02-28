@@ -319,9 +319,7 @@ if page == "EDA":
         st.image(original_image, caption="📸 Image originale", use_container_width=True)
 
     with col2:
-        st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", width=int(original_image.width * 0.8))  
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
 # Page Résultats des modèles
 @st.cache_data
