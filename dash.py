@@ -138,11 +138,12 @@ with col1:
     st.markdown(
         """
         <div style="
-            background-color: #1E90FF;
+            background-color: #2C2F33;
             padding: 20px;
             border-radius: 10px;
             color: white;
-            text-align: center;">
+            text-align: center;
+            margin-bottom: 15px;">
             <h2>🏆 Présentation du projet</h2>
             <p>Ce projet compare les performances des modèles <b>FPN avec ResNet</b> et <b>ConvNeXt</b> pour la segmentation d'images.</p>
         </div>
@@ -153,16 +154,20 @@ with col2:
     st.markdown(
         """
         <div style="
-            background-color: #FF8C00;
+            background-color: #2C2F33;
             padding: 20px;
             border-radius: 10px;
             color: white;
-            text-align: center;">
+            text-align: center;
+            margin-bottom: 15px;">
             <h2>📊 Exploration des Données (EDA)</h2>
             <p>Analyse du dataset Cityscapes : <b>distribution des classes</b>, visualisation des images, et effets de la <b>data augmentation</b>.</p>
         </div>
         """, unsafe_allow_html=True
     )
+
+# 🔹 Espacement entre les deux lignes
+st.markdown("<br>", unsafe_allow_html=True)
 
 # 🔹 Deuxième ligne (Résultats des modèles & Test des modèles)
 col3, col4 = st.columns(2)  # Nouvelle ligne avec 2 colonnes
@@ -171,7 +176,7 @@ with col3:
     st.markdown(
         """
         <div style="
-            background-color: #32CD32;
+            background-color: #2C2F33;
             padding: 20px;
             border-radius: 10px;
             color: white;
@@ -186,7 +191,7 @@ with col4:
     st.markdown(
         """
         <div style="
-            background-color: #8A2BE2;
+            background-color: #2C2F33;
             padding: 20px;
             border-radius: 10px;
             color: white;
