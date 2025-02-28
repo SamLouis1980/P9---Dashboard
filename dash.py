@@ -316,7 +316,7 @@ st.markdown("""
         align-items: center;
     }
     .equal-height img {
-        height: 400px; /* Ajuste cette valeur en fonction de l'image originale */
+        height: 380px; /* Ajuste cette valeur en fonction de l'image originale */
         width: auto;   /* Garde le ratio naturel */
     }
     </style>
