@@ -162,40 +162,27 @@ st.markdown(
             font-size: 18px;
             margin-right: 10px;
         }
-
-        /* Ajustement du style du selectbox */
-        div[data-baseweb="select"] {
-            width: 200px !important;
-        }
     </style>
+    """,
+    unsafe_allow_html=True
+)
 
-    <div class="navbar">
-        <h1>Dashboard</h1>
+# 🔹 Création de la barre de navigation avec st.columns
+col1, col2 = st.columns([3, 1])  # Divise l'espace en deux colonnes
+
+with col1:
+    st.markdown('<div class="navbar"><h1>Dashboard</h1></div>', unsafe_allow_html=True)
+
+with col2:
+    st.markdown(
+        """
         <div class="menu-container">
             <span class="menu-label">Menu</span>
-            <div id="menu-placeholder"></div>
         </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-# 🔹 Sélection du menu avec position forcée dans la barre
-page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
-
-# 🔹 Correction du placement en utilisant le script JS
-st.markdown(
-    """
-    <script>
-        var selectbox = window.parent.document.querySelectorAll('section.main div[data-testid="stSelectbox"]');
-        var placeholder = window.parent.document.getElementById('menu-placeholder');
-        if (selectbox.length > 0 && placeholder) {
-            placeholder.appendChild(selectbox[0]);
-        }
-    </script>
-    """,
-    unsafe_allow_html=True
-)
+        """,
+        unsafe_allow_html=True
+    )
+    page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
 
 # Page EDA
 if page == "EDA":
