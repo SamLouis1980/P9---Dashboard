@@ -51,6 +51,7 @@ st.markdown(
             color: #FFFFFF !important;
             border-radius: 5px;
         }
+        
     </style>
     """,
     unsafe_allow_html=True
@@ -130,15 +131,15 @@ if "processing" not in st.session_state:
 st.markdown(
     """
     <style>
-        .top-bar {
+        .navbar {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #1e1e1e;
             padding: 10px 20px;
-            background-color: #1E1E1E;
-            border-bottom: 2px solid #444;
+            border-radius: 8px;
         }
-        .top-bar h1 {
+        .navbar h1 {
             color: #1E90FF;
             font-size: 24px;
             margin: 0;
@@ -152,21 +153,22 @@ st.markdown(
             font-size: 18px;
             margin-right: 10px;
         }
+        .stSelectbox {
+            width: 180px !important;
+        }
     </style>
     
-    <div class="top-bar">
+    <div class="navbar">
         <h1>Dashboard</h1>
         <div class="menu-container">
             <span class="menu-label">Menu</span>
-            <div id="menu-placeholder"></div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+            <div class="stSelectbox">
+                """, unsafe_allow_html=True)
 
-# 🔹 Insérer le menu déroulant dans l'espace prévu
+# Sélection du menu
 page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_select")
+
+st.markdown("</div></div></div>", unsafe_allow_html=True)
 
 # Page EDA
 if page == "EDA":
