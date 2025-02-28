@@ -312,39 +312,35 @@ if page == "EDA":
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Ajustement des tailles : on garde la même hauteur pour les deux images
-    original_width, original_height = original_image.size
-    
-    # 🔹 Réduction de la taille de l'image augmentée (50% de la taille originale)
-    aug_width = augmented_image.width // 2
-    aug_height = augmented_image.height // 2
-    augmented_image = augmented_image.resize((aug_width, aug_height))  # Redimensionnement
-
-    # 🔹 Affichage en deux colonnes équilibrées
-    col1, col2 = st.columns([1, 1])
-
-    # 🔹 Définition d'un style CSS pour centrer l'image augmentée dans son bloc
+    # 🔹 Définition d'un style CSS pour limiter la hauteur des colonnes et centrer l'image augmentée
     st.markdown("""
         <style>
-        .centered-image {
+        .equal-height-container {
             display: flex;
-            justify-content: center;
             align-items: center;
-            height: 100%;
+            justify-content: center;
+            height: 400px; /* Fixe une hauteur identique pour les deux colonnes */
+            overflow: hidden;
         }
-        .centered-image img {
+        .equal-height-container img {
+            max-height: 100%;
+            width: auto;
             display: block;
             margin: auto;
         }
         </style>
     """, unsafe_allow_html=True)
 
-    # 🔹 Affichage des images
+    # 🔹 Affichage en deux colonnes équilibrées
+    col1, col2 = st.columns([1, 1])
+
     with col1:
+        st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
         st.image(original_image, caption="📸 Image originale", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="centered-image">', unsafe_allow_html=True)
+        st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
         st.markdown('</div>', unsafe_allow_html=True)
 
