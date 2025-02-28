@@ -200,7 +200,7 @@ if page == "Menu":
                 color: white;
                 text-align: center;">
                 <h2>🖼️ Test des Modèles</h2>
-                <p>Testez la segmentation en direct : <b>téléchargez une image</b> et observez le résultat du modèle.</p>
+                <p>Testez la segmentation en direct : <b>sélectionnezz une image</b> et observez le résultat du modèle.</p>
             </div>
             """, unsafe_allow_html=True
         )
@@ -210,6 +210,8 @@ if page == "Menu":
 # 🔹 Génération des URLs complètes des images et masques en utilisant les variables existantes
 image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{img}" for img in available_images]
 mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}" for mask in available_masks]
+# 🔹 Génération des URLs complètes des images augmentées
+augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
@@ -273,6 +275,7 @@ if page == "EDA":
         st.plotly_chart(fig)
         st.markdown("</div>", unsafe_allow_html=True)
 
+    # 🔹 Affichage du carrousel interactif des images et masques
     st.markdown("### 🎠 Exemples d'Images et Masques Segmentés")
     
     # Sélecteur d’image avec un slider
@@ -290,6 +293,18 @@ if page == "EDA":
 
     with col2:
         st.image(mask, caption="🎭 Masque segmenté", use_container_width=True)
+
+    # 🔹 Affichage du carrousel interactif des images augmentées
+    st.markdown("### 🎭 Effets de la Data Augmentation")
+
+    # Sélecteur d’image avec un slider
+    img_index_aug = st.slider("Sélectionnez une image augmentée :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
+
+    # Chargement de l’image transformée sélectionnée
+    augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
+
+    # Affichage en grand format
+    st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
 # Page Résultats des modèles
 @st.cache_data
