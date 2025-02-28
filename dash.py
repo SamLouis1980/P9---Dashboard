@@ -128,14 +128,13 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Barre de navigation en haut
-# 🔹 Création de la barre de menu avec trois colonnes
 col1, col2, col3 = st.columns([2, 1, 2])
 
 with col1:
     st.markdown("### Dashboard")
 
 with col2:
-    st.markdown("### Menu")
+    st.markdown('<p style="text-align:right; font-size:16px;">Menu</p>', unsafe_allow_html=True)
 
 with col3:
     page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection")
