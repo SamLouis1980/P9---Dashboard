@@ -133,77 +133,77 @@ page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des mod
 # Page Menu
 if page == "Menu":
     
-# 🔹 Création de la mise en page en 2x2 avec des colonnes
-col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
+    # 🔹 Création de la mise en page en 2x2 avec des colonnes
+    col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
 
-# 🔹 Première ligne (Présentation du projet & EDA)
-with col1:
-    st.markdown(
-        """
-        <div style="
-            background-color: #2C2F33;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            margin-bottom: 5px;">
-            <h2>🏆 Présentation du projet</h2>
-            <p>Ce projet compare les performances des modèles <b>FPN avec ResNet</b> et <b>ConvNeXt</b> pour la segmentation d'images.</p>
-        </div>
-        """, unsafe_allow_html=True
-    )
+    # 🔹 Première ligne (Présentation du projet & EDA)
+    with col1:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                text-align: center;
+                margin-bottom: 5px;">
+                <h2>🏆 Présentation du projet</h2>
+                <p>Ce projet compare les performances des modèles <b>FPN avec ResNet</b> et <b>ConvNeXt</b> pour la segmentation d'images.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
 
-with col2:
-    st.markdown(
-        """
-        <div style="
-            background-color: #2C2F33;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;
-            margin-bottom: 5px;">
-            <h2>📊 Exploration des Données (EDA)</h2>
-            <p>Analyse du dataset Cityscapes : <b>distribution des classes</b>, visualisation des images, et effets de la <b>data augmentation</b>.</p>
-        </div>
-        """, unsafe_allow_html=True
-    )
+    with col2:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                text-align: center;
+                margin-bottom: 5px;">
+                <h2>📊 Exploration des Données (EDA)</h2>
+                <p>Analyse du dataset Cityscapes : <b>distribution des classes</b>, visualisation des images, et effets de la <b>data augmentation</b>.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
 
-# 🔹 Espacement entre les deux lignes
-st.markdown("<br>", unsafe_allow_html=True)
+    # 🔹 Espacement entre les deux lignes
+    st.markdown("<br>", unsafe_allow_html=True)
 
-# 🔹 Deuxième ligne (Résultats des modèles & Test des modèles)
-col3, col4 = st.columns(2)  # Nouvelle ligne avec 2 colonnes
+    # 🔹 Deuxième ligne (Résultats des modèles & Test des modèles)
+    col3, col4 = st.columns(2)  # Nouvelle ligne avec 2 colonnes
 
-with col3:
-    st.markdown(
-        """
-        <div style="
-            background-color: #2C2F33;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;">
-            <h2>📈 Résultats des Modèles</h2>
-            <p>Comparaison des performances : <b>IoU, Dice Score</b>, et <b>courbes d'apprentissage</b> des modèles testés.</p>
-        </div>
-        """, unsafe_allow_html=True
-    )
+    with col3:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                text-align: center;">
+                <h2>📈 Résultats des Modèles</h2>
+                <p>Comparaison des performances : <b>IoU, Dice Score</b>, et <b>courbes d'apprentissage</b> des modèles testés.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
 
-with col4:
-    st.markdown(
-        """
-        <div style="
-            background-color: #2C2F33;
-            padding: 20px;
-            border-radius: 10px;
-            color: white;
-            text-align: center;">
-            <h2>🖼️ Test des Modèles</h2>
-            <p>Testez la segmentation en direct : <b>téléchargez une image</b> et observez le résultat du modèle.</p>
-        </div>
-        """, unsafe_allow_html=True
-    )
+    with col4:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 20px;
+                border-radius: 10px;
+                color: white;
+                text-align: center;">
+                <h2>🖼️ Test des Modèles</h2>
+                <p>Testez la segmentation en direct : <b>téléchargez une image</b> et observez le résultat du modèle.</p>
+            </div>
+            """, unsafe_allow_html=True
+        )
     
 # Page EDA
 if page == "EDA":
