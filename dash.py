@@ -205,44 +205,68 @@ if page == "Menu":
             """, unsafe_allow_html=True
         )
     
-# Page EDA
+# 🔹 Page EDA
 if page == "EDA":
     st.title("Exploratory Data Analysis (EDA)")
 
-    # Structure du dataset
-    st.header("Structure des Dossiers et Fichiers")
-    folders = {"Images": ["train", "val", "test"], "Masques": ["train", "val", "test"]}
-    for key, values in folders.items():
-        st.write(f"**{key}**: {', '.join(values)}")
+    # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
+    @st.cache_data
+    def load_class_distribution():
+        """Charge le fichier CSV contenant la distribution des classes."""
+        CSV_URL = "https://storage.googleapis.com/p9-dashboard-storage/Dataset/class_distribution/cityscapes_class_distribution.csv"
+        return pd.read_csv(CSV_URL)
 
-    dataset_info = {
-        "Ensemble": ["Train", "Validation", "Test"],
-        "Images": [2975, 500, 1525],
-        "Masques": [2975, 500, 1525]
-    }
-    df_info = pd.DataFrame(dataset_info)
-    st.table(df_info)
+    df_classes = load_class_distribution()
 
-    # Distribution des classes
-    st.header("Distribution des Classes dans les Masques")
-    class_distribution = {
-        "ID": [7, 11, 21, 26, 8, 1, 23, 3, 4, 2, 6, 17, 24, 22, 13, 9, 12, 20, 33, 15],
-        "Classe": ["road", "fence", "truck", "void", "sidewalk", "ego vehicle", "train", "out of roi", "static", "rectification border",
-                    "ground", "sky", "motorcycle", "bus", "traffic light", "building", "pole", "car", "void", "vegetation"],
-        "Pixels": [2036416525, 1260636120, 879783988, 386328286, 336090793, 286002726, 221979646, 94111150, 83752079, 81359604,
-                    75629728, 67789506, 67326424, 63949536, 48454166, 39065130, 36199498, 30448193, 22861233, 17860177]
-    }
-    df_classes = pd.DataFrame(class_distribution)
-    st.table(df_classes.head(10))
+    # 🔹 Slider interactif pour choisir combien de classes afficher
+    num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=5)
+    df_filtered = df_classes.head(num_classes)
 
-    # Affichage du graphique de répartition des classes
-    fig, ax = plt.subplots()
-    ax.bar(df_classes["Classe"], df_classes["Pixels"], color="skyblue")
-    plt.xticks(rotation=90)
-    plt.xlabel("Classes")
-    plt.ylabel("Nombre de Pixels")
-    plt.title("Répartition des Pixels par Classe")
-    st.pyplot(fig)
+    # 🔹 Affichage en 2 colonnes (tableau à gauche, graphique à droite)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 15px;
+                border-radius: 10px;
+                color: white;">
+                <h3 style="text-align: center;">📊 Distribution des Classes</h3>
+            </div>
+            """, unsafe_allow_html=True
+        )
+        st.dataframe(df_filtered, use_container_width=True)
+
+    with col2:
+        st.markdown(
+            """
+            <div style="
+                background-color: #2C2F33;
+                padding: 15px;
+                border-radius: 10px;
+                color: white;">
+                <h3 style="text-align: center;">📈 Répartition des Pixels</h3>
+            </div>
+            """, unsafe_allow_html=True
+        )
+        # 🔹 Création du graphique interactif avec Plotly
+        import plotly.express as px
+        fig = px.bar(
+            df_filtered,
+            x="Class Name", 
+            y="Pixel Count", 
+            title="Répartition des Pixels par Classe",
+            labels={"Pixel Count": "Nombre de Pixels", "Class Name": "Classe"},
+            color="Pixel Count",
+            color_continuous_scale="blues"
+        )
+        fig.update_layout(xaxis_tickangle=-45)
+
+        # 🔹 Affichage du graphique interactif
+        st.plotly_chart(fig)
+
 
 # Page Résultats des modèles
 @st.cache_data
