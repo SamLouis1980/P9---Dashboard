@@ -18,11 +18,11 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
-# 🔹 Titre principal
-st.title("Dashboard")
-
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
+
+# 🔹 Titre principal
+st.title("Dashboard")
 
 st.markdown(
     """
