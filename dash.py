@@ -1,13 +1,12 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import urllib.request
 import matplotlib.pyplot as plt
 import os
 import torch
 import torchvision
 import torch.nn as nn
 import torch.nn.functional as F
+import urllib.request
 from PIL import Image
 import numpy as np
 import warnings
@@ -18,8 +17,6 @@ import time
 from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN_ConvNeXtV2_Segmenter, CLASS_COLORS
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
-
-st.set_page_config(layout="wide")
 
 st.markdown(
     """
@@ -58,16 +55,16 @@ for var in ["overlay_fpn", "overlay_convnext"]:
     if var not in st.session_state:
         st.session_state[var] = None
         
-# 🔹 Configuration du bucket GCS (Public)
+# Configuration du bucket GCS (Public)
 BUCKET_NAME = "p9-dashboard-storage"
 IMAGE_FOLDER = "Dataset/images"
 MASK_FOLDER = "Dataset/masks"
 
-# 🔹 Chemins vers les modèles sur GCS
+# Chemins vers les modèles sur GCS
 FPN_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/fpn_best.pth"
 CONVNEXT_MODEL_URL = f"https://storage.googleapis.com/{BUCKET_NAME}/Models/convnext_model_fp16.pth"
 
-# 🔹 Téléchargement et chargement des modèles
+# Téléchargement et chargement des modèles
 @st.cache_resource
 def load_models():
     """Télécharge et charge les modèles depuis Google Cloud Storage."""
@@ -93,7 +90,7 @@ def load_models():
 # Charger les modèles
 fpn_model, convnext_model = load_models()
 
-# 🔹 Liste manuelle des images (évite les appels à GCS)
+# Liste manuelle des images (évite les appels à GCS)
 @st.cache_data
 def get_available_images_and_masks():
     """Retourne les noms des images et masques présents dans GCS."""
@@ -123,56 +120,50 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# 🔹 Menu déroulant en haut
-with st.container():
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.title("Dashboard")
-    with col2:
-        page = st.selectbox("Menu :", ["EDA", "Résultats des modèles", "Test des modèles"])
+# Sidebar Navigation
+st.sidebar.title("Menu")
+page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
-# 🔹 Page EDA
-# 🔹 URL du fichier CSV stocké sur Google Cloud Storage
-CSV_URL = "https://storage.googleapis.com/p9-dashboard-storage/Dataset/class_distribution/cityscapes_class_distribution.csv"
+# Page EDA
+if page == "EDA":
+    st.title("Exploratory Data Analysis (EDA)")
 
-@st.cache_data
-def load_class_distribution():
-    """Charge le fichier CSV contenant la distribution des classes."""
-    return pd.read_csv(CSV_URL)
+    # Structure du dataset
+    st.header("Structure des Dossiers et Fichiers")
+    folders = {"Images": ["train", "val", "test"], "Masques": ["train", "val", "test"]}
+    for key, values in folders.items():
+        st.write(f"**{key}**: {', '.join(values)}")
 
-# 🔹 Chargement des données
-st.title("Exploratory Data Analysis (EDA)")
-df_classes = load_class_distribution()
+    dataset_info = {
+        "Ensemble": ["Train", "Validation", "Test"],
+        "Images": [2975, 500, 1525],
+        "Masques": [2975, 500, 1525]
+    }
+    df_info = pd.DataFrame(dataset_info)
+    st.table(df_info)
 
-# 🔹 Slider interactif pour filtrer le nombre de classes affichées
-num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=1)
-df_filtered = df_classes.head(num_classes)
+    # Distribution des classes
+    st.header("Distribution des Classes dans les Masques")
+    class_distribution = {
+        "ID": [7, 11, 21, 26, 8, 1, 23, 3, 4, 2, 6, 17, 24, 22, 13, 9, 12, 20, 33, 15],
+        "Classe": ["road", "fence", "truck", "void", "sidewalk", "ego vehicle", "train", "out of roi", "static", "rectification border",
+                    "ground", "sky", "motorcycle", "bus", "traffic light", "building", "pole", "car", "void", "vegetation"],
+        "Pixels": [2036416525, 1260636120, 879783988, 386328286, 336090793, 286002726, 221979646, 94111150, 83752079, 81359604,
+                    75629728, 67789506, 67326424, 63949536, 48454166, 39065130, 36199498, 30448193, 22861233, 17860177]
+    }
+    df_classes = pd.DataFrame(class_distribution)
+    st.table(df_classes.head(10))
 
-# 🔹 Disposition en colonnes
-col1, col2 = st.columns([1, 1])
+    # Affichage du graphique de répartition des classes
+    fig, ax = plt.subplots()
+    ax.bar(df_classes["Classe"], df_classes["Pixels"], color="skyblue")
+    plt.xticks(rotation=90)
+    plt.xlabel("Classes")
+    plt.ylabel("Nombre de Pixels")
+    plt.title("Répartition des Pixels par Classe")
+    st.pyplot(fig)
 
-with col1:
-    # 🔹 Affichage du tableau interactif
-    st.write("### Distribution des Classes dans Cityscapes")
-    st.dataframe(df_filtered, use_container_width=True)
-
-with col2:
-    # 🔹 Création du graphique interactif
-    fig = px.bar(
-        df_filtered,
-        x="Class Name", 
-        y="Pixel Count", 
-        title="Répartition des Pixels par Classe",
-        labels={"Pixel Count": "Nombre de Pixels", "Class Name": "Classe"},
-        color="Pixel Count",
-        color_continuous_scale="blues"
-    )
-    fig.update_layout(xaxis_tickangle=-45)
-    
-    # 🔹 Affichage du graphique interactif
-    st.plotly_chart(fig)
-
-# 🔹 Page Résultats des modèles
+# Page Résultats des modèles
 @st.cache_data
 def load_results():
     fpn_results = pd.read_csv(f"https://storage.googleapis.com/{BUCKET_NAME}/Resultats/fpn_results.csv")
@@ -226,26 +217,26 @@ if "segmentation_fpn" not in st.session_state:
 if "segmentation_convnext" not in st.session_state:
     st.session_state.segmentation_convnext = None
 
-# 🔹 Page Test des modèles
+# Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
-    # 🔹 URL de l’image
+    # URL de l’image
     image_url = f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{image_choice}"
 
     try:
-        # 🔹 Chargement et affichage de l’image d’entrée
+        # Chargement et affichage de l’image d’entrée
         image = Image.open(urllib.request.urlopen(image_url)).convert("RGB")
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
-        # 🔹 Prétraitement de l’image avant passage dans le modèle
-        input_size = (256, 256)
+        # Prétraitement de l’image avant passage dans le modèle
+        input_size = (512, 512)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
-        # 🔹 Bouton pour lancer la segmentation avec les deux modèles
+        # Bouton pour lancer la segmentation avec les deux modèles
         if st.button("Lancer la segmentation"):
             print("Bouton cliqué !")  # Debug
 
@@ -253,7 +244,7 @@ if page == "Test des modèles":
             st.session_state.overlay_fpn = None
             st.session_state.overlay_convnext = None
 
-            # 🔹 Exécuter la segmentation en parallèle
+            # Exécuter la segmentation en parallèle
             with st.spinner("Segmentation en cours..."):
                 with torch.no_grad():
                     # FPN - Prédiction et post-traitement
@@ -281,7 +272,7 @@ if page == "Test des modèles":
 
             print("Segmentation terminée !")  # Debug
 
-        # 🔹 Affichage des superpositions uniquement
+        # Affichage des superpositions uniquement
         if st.session_state.overlay_fpn is not None and st.session_state.overlay_convnext is not None:
             col1, col2 = st.columns(2)
             with col1:
