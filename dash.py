@@ -312,16 +312,45 @@ if page == "EDA":
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Affichage en deux colonnes équilibrées comme pour les masques
+    # 🔹 Appliquer un style CSS pour uniformiser la hauteur et centrer le contenu
+    st.markdown("""
+        <style>
+        .image-row {
+            display: flex;
+            justify-content: space-evenly;
+            align-items: center;
+            height: 400px; /* Hauteur uniforme */
+        }
+        .image-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+        .augmented-image {
+            max-width: 80%;
+            max-height: 100%; /* Empêche l'image d'être trop grande */
+            height: auto;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # 🔹 Création d'une ligne unique contenant les deux colonnes
+    st.markdown('<div class="image-row">', unsafe_allow_html=True)
+
     col1, col2 = st.columns(2)
 
     with col1:
+        st.markdown('<div class="image-container">', unsafe_allow_html=True)
         st.image(original_image, caption="📸 Image originale", use_container_width=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown("<div style='display: flex; justify-content: center;'>", unsafe_allow_html=True)
-        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", width=int(original_image.width * 0.8))  
-        st.markdown("</div>", unsafe_allow_html=True)
+        st.markdown('<div class="image-container">', unsafe_allow_html=True)
+        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # Page Résultats des modèles
 @st.cache_data
