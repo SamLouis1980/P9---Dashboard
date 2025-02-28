@@ -298,13 +298,20 @@ if page == "EDA":
     st.markdown("### 🎭 Effets de la Data Augmentation")
 
     # Sélecteur d’image avec un slider
-    img_index_aug = st.slider("Sélectionnez une image augmentée :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
+    img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
 
-    # Chargement de l’image transformée sélectionnée
+    # Chargement des images sélectionnées
+    original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # Affichage en grand format
-    st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
+    # 🔹 Affichage en deux colonnes (original vs transformée)
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.image(original_image, caption="📸 Image originale", use_container_width=True)
+
+    with col2:
+        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
 # Page Résultats des modèles
 @st.cache_data
