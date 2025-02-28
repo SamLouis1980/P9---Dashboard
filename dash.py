@@ -319,7 +319,7 @@ if page == "EDA":
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 360px; /* Fixe une hauteur identique pour les deux colonnes */
+            height: 400px; /* Fixe une hauteur identique pour les deux colonnes */
             overflow: hidden;
             padding: 10px; /* Ajoute un léger padding pour éviter que les images ne collent entre elles */
         }
