@@ -312,21 +312,22 @@ if page == "EDA":
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Définition d'un style CSS pour limiter la hauteur des colonnes et centrer l'image augmentée
+    # 🔹 Définition d'un style CSS pour fixer la hauteur et centrer l'image augmentée
     st.markdown("""
         <style>
-        .equal-height-container {
+        .image-container {
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 400px; /* Fixe une hauteur identique pour les deux colonnes */
+            height: 400px; /* Fixe une hauteur identique */
             overflow: hidden;
+            padding: 10px;
         }
-        .equal-height-container img {
+        .image-container img {
             max-height: 100%;
             width: auto;
             display: block;
-            margin: auto;
+            margin: auto; /* Centre parfaitement l'image */
         }
         </style>
     """, unsafe_allow_html=True)
@@ -335,12 +336,12 @@ if page == "EDA":
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
-        st.image(original_image, caption="📸 Image originale", use_container_width=False)
+        st.markdown('<div class="image-container">', unsafe_allow_html=True)
+        st.image(original_image, caption="📸 Image originale", use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
+        st.markdown('<div class="image-container">', unsafe_allow_html=True)
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
         st.markdown('</div>', unsafe_allow_html=True)
 
