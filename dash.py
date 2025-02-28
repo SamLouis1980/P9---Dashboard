@@ -128,7 +128,7 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Barre de navigation en haut
-col1, col2 = st.columns([3, 1])
+col1, col2 = st.columns([1, 3])
 
 with col1:
     st.markdown("### Dashboard")
