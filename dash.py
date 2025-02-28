@@ -21,9 +21,6 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
-# 🔹 Titre principal
-st.title("Dashboard")
-
 st.markdown(
     """
     <style>
