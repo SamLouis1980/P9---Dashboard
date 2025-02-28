@@ -321,7 +321,6 @@ if page == "EDA":
             justify-content: center;
             height: 400px; /* Fixe une hauteur identique pour les deux colonnes */
             overflow: hidden;
-            padding: 10px; /* Ajoute un léger padding pour éviter que les images ne collent entre elles */
         }
         .equal-height-container img {
             max-height: 100%;
@@ -333,7 +332,7 @@ if page == "EDA":
     """, unsafe_allow_html=True)
 
     # 🔹 Affichage en deux colonnes équilibrées
-    col1, col2 = st.columns([1, 0.9])
+    col1, col2 = st.columns([1, 0.5])
 
     with col1:
         st.markdown('<div class="equal-height-container">', unsafe_allow_html=True)
