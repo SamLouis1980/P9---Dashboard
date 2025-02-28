@@ -304,14 +304,15 @@ if page == "EDA":
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Affichage en deux colonnes (original vs transformée)
-    col1, col2 = st.columns(2)
+    # 🔹 Affichage en deux colonnes avec mêmes proportions
+    col1, col2 = st.columns([1, 1])
 
     with col1:
         st.image(original_image, caption="📸 Image originale", use_container_width=True)
 
     with col2:
-        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
+        # Ajustement de la hauteur de l'image augmentée pour correspondre à celle de l'originale
+        st.image(augmented_image.resize(original_image.size), caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
 # Page Résultats des modèles
 @st.cache_data
