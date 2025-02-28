@@ -18,6 +18,9 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
+# 🔹 Titre principal
+st.title("Dashboard")
+
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
@@ -125,13 +128,8 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Barre de navigation en haut
-col1, col2 = st.columns([1, 3])
-
-with col1:
-    st.markdown("### Dashboard")
-
-with col2:
-    page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection")
+# 🔹 Menu déroulant unique en haut du dashboard
+page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection", label_visibility="collapsed")
     
 # Page EDA
 if page == "EDA":
