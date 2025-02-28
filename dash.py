@@ -130,6 +130,9 @@ if "processing" not in st.session_state:
 # 🔹 Menu déroulant
 page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection", label_visibility="collapsed")
 
+# Page Menu
+if page == "Menu":
+    
 # 🔹 Création de la mise en page en 2x2 avec des colonnes
 col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
 
