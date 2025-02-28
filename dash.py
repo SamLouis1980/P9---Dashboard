@@ -143,7 +143,7 @@ with col1:
             border-radius: 10px;
             color: white;
             text-align: center;
-            margin-bottom: 15px;">
+            margin-bottom: 10px;">
             <h2>🏆 Présentation du projet</h2>
             <p>Ce projet compare les performances des modèles <b>FPN avec ResNet</b> et <b>ConvNeXt</b> pour la segmentation d'images.</p>
         </div>
@@ -159,7 +159,7 @@ with col2:
             border-radius: 10px;
             color: white;
             text-align: center;
-            margin-bottom: 15px;">
+            margin-bottom: 10px;">
             <h2>📊 Exploration des Données (EDA)</h2>
             <p>Analyse du dataset Cityscapes : <b>distribution des classes</b>, visualisation des images, et effets de la <b>data augmentation</b>.</p>
         </div>
