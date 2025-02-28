@@ -18,6 +18,9 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
+# 🔹 Configuration du layout
+st.set_page_config(layout="wide")
+
 st.markdown(
     """
     <style>
@@ -120,9 +123,13 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# Sidebar Navigation
-st.sidebar.title("Menu")
-page = st.sidebar.radio("Aller à :", ["EDA", "Résultats des modèles", "Test des modèles"])
+# 🔹 Menu en haut
+with st.container():
+    col1, col2 = st.columns([3, 1])  # 3/4 pour le titre, 1/4 pour le menu
+    with col1:
+        st.markdown("### Menu")  # Garde le mot "Menu"
+    with col2:
+        page = st.selectbox("Sélectionnez une section :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
 # Page EDA
 if page == "EDA":
