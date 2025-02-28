@@ -127,9 +127,9 @@ if "processing" not in st.session_state:
 with st.container():
     col1, col2 = st.columns([3, 1])
     with col1:
-        st.title("Dashboard de Segmentation d'Images")
+        st.title("Dashboard")
     with col2:
-        page = st.selectbox("Sélectionnez une section :", ["EDA", "Résultats des modèles", "Test des modèles"])
+        page = st.selectbox("Menu :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
 # 🔹 Page EDA
 # 🔹 URL du fichier CSV stocké sur Google Cloud Storage
