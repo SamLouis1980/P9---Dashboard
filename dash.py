@@ -128,16 +128,13 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Barre de navigation en haut
-col1, col2, col3 = st.columns([2, 1, 2])
+col1, col2 = st.columns([3, 1])
 
 with col1:
     st.markdown("### Dashboard")
 
 with col2:
-    st.markdown('<p style="text-align:right; font-size:16px;">Menu</p>', unsafe_allow_html=True)
-
-with col3:
-    page = st.selectbox("", ["EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection")
+    page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection")
     
 # Page EDA
 if page == "EDA":
