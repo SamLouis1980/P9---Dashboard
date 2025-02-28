@@ -314,37 +314,37 @@ if page == "EDA":
 
     # 🔹 Ajustement des tailles : on garde la même hauteur pour les deux images
     original_width, original_height = original_image.size
-    aspect_ratio_aug = augmented_image.width / augmented_image.height
-    new_augmented_width = int(original_height * aspect_ratio_aug)  # Ajuster la largeur en fonction du ratio original
-
-    augmented_image = augmented_image.resize((new_augmented_width, original_height))  # Adapter la largeur
+    
+    # 🔹 Réduction de la taille de l'image augmentée (50% de la taille originale)
+    aug_width = augmented_image.width // 2
+    aug_height = augmented_image.height // 2
+    augmented_image = augmented_image.resize((aug_width, aug_height))  # Redimensionnement
 
     # 🔹 Affichage en deux colonnes équilibrées
     col1, col2 = st.columns([1, 1])
 
-    # 🔹 Définition d'un style CSS pour aligner correctement les images
+    # 🔹 Définition d'un style CSS pour centrer l'image augmentée dans son bloc
     st.markdown("""
         <style>
-        .equal-height {
+        .centered-image {
             display: flex;
             justify-content: center;
             align-items: center;
+            height: 100%;
         }
-        .equal-height img {
-            height: auto;  /* Garde la hauteur identique */
-            max-height: 400px; /* Valeur ajustable pour uniformiser */
-            width: auto;   /* Garde le ratio naturel */
+        .centered-image img {
+            display: block;
+            margin: auto;
         }
         </style>
     """, unsafe_allow_html=True)
 
+    # 🔹 Affichage des images
     with col1:
-        st.markdown('<div class="equal-height">', unsafe_allow_html=True)
         st.image(original_image, caption="📸 Image originale", use_container_width=False)
-        st.markdown('</div>', unsafe_allow_html=True)
 
     with col2:
-        st.markdown('<div class="equal-height">', unsafe_allow_html=True)
+        st.markdown('<div class="centered-image">', unsafe_allow_html=True)
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=False)
         st.markdown('</div>', unsafe_allow_html=True)
 
