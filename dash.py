@@ -131,6 +131,23 @@ with st.container():
     with col2:
         page = st.selectbox("Menu :", ["EDA", "Résultats des modèles", "Test des modèles"])
 
+# 🔹 Conteneur pour afficher une seule page à la fois
+content = st.empty()
+
+# 🔹 Affichage dynamique selon la page sélectionnée
+with content:
+    if page == "EDA":
+        st.title("Exploratory Data Analysis (EDA)")
+        # Code EDA ici...
+    
+    elif page == "Résultats des modèles":
+        st.title("Analyse des Résultats des Modèles")
+        # Code Résultats ici...
+
+    elif page == "Test des modèles":
+        st.title("Test de Segmentation avec les Modèles")
+        # Code Test ici...
+
 # 🔹 Page EDA
 # 🔹 URL du fichier CSV stocké sur Google Cloud Storage
 CSV_URL = "https://storage.googleapis.com/p9-dashboard-storage/Dataset/class_distribution/cityscapes_class_distribution.csv"
