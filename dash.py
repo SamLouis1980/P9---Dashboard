@@ -428,6 +428,16 @@ if page == "Résultats des modèles":
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
 
+    # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
+    @st.cache_data
+    def load_pixel_data():
+        df_resnet = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv")
+        df_convnext = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv")
+        return df_resnet, df_convnext
+
+    # 📌 Chargement des DataFrames depuis GCS
+    df_resnet, df_convnext = load_pixel_data()
+
     # 📌 Création du DataFrame comparatif des performances par classe
     df_comparaison = pd.DataFrame({
         "Classe": df_resnet["Classe"],
