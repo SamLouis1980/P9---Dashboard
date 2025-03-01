@@ -411,22 +411,19 @@ if page == "Résultats des modèles":
 
     with col2:
         st.markdown("### 📋 Tableau récapitulatif des scores")
-        # Coloration de la meilleure valeur par métrique
-        best_iou = final_scores["ResNet"].iloc[0] > final_scores["ConvNeXt"].iloc[0]
-        best_dice = final_scores["ResNet"].iloc[1] > final_scores["ConvNeXt"].iloc[1]
-        best_loss = final_scores["ResNet"].iloc[2] < final_scores["ConvNeXt"].iloc[2]  # Loss plus petite = meilleure
 
-        def highlight_best(val, is_best):
-            return 'font-weight: bold; color: green' if is_best else ''
+        # Création d'une copie du DataFrame pour éviter les erreurs de modification
+        final_scores_display = final_scores.copy()
 
-        styled_table = final_scores.style.applymap(lambda val: highlight_best(val, best_iou), subset=["ResNet"], axis=0)\
-                                         .applymap(lambda val: highlight_best(val, not best_iou), subset=["ConvNeXt"], axis=0)\
-                                         .applymap(lambda val: highlight_best(val, best_dice), subset=["ResNet"], axis=0)\
-                                         .applymap(lambda val: highlight_best(val, not best_dice), subset=["ConvNeXt"], axis=0)\
-                                         .applymap(lambda val: highlight_best(val, best_loss), subset=["ResNet"], axis=0)\
-                                         .applymap(lambda val: highlight_best(val, not best_loss), subset=["ConvNeXt"], axis=0)
+        # Ajout d'une colonne pour marquer les meilleurs scores en vert
+        final_scores_display["Meilleur Modèle"] = [
+            "ResNet" if final_scores["ResNet"].iloc[0] > final_scores["ConvNeXt"].iloc[0] else "ConvNeXt",
+            "ResNet" if final_scores["ResNet"].iloc[1] > final_scores["ConvNeXt"].iloc[1] else "ConvNeXt",
+            "ResNet" if final_scores["ResNet"].iloc[2] < final_scores["ConvNeXt"].iloc[2] else "ConvNeXt"  # Pour Loss, plus petit est meilleur
+        ]
 
-        st.dataframe(styled_table)
+        # Affichage du tableau
+        st.dataframe(final_scores_display)
 
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("🎯 Précision des Pixels Classifiés Correctement")
