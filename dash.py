@@ -1,4 +1,4 @@
-import streamlit as st
+    import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
@@ -428,14 +428,14 @@ if page == "Résultats des modèles":
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
 
-    # Création du DataFrame comparatif des performances par classe
+    # 📌 Création du DataFrame comparatif des performances par classe
     df_comparaison = pd.DataFrame({
         "Classe": df_resnet["Classe"],
         "Précision ResNet (%)": df_resnet["Précision (%)"],
         "Précision ConvNeXt (%)": df_convnext["Précision (%)"]
     })
 
-    # 📌 Disposition en colonnes
+    # 📌 Disposition en colonnes (graphique à gauche, tableau à droite)
     col1, col2 = st.columns([2, 1])  # Largeur 2/3 pour le graphique, 1/3 pour le tableau
 
     with col1:
@@ -443,11 +443,11 @@ if page == "Résultats des modèles":
         fig_classes = go.Figure()
 
         fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
-                                     x=df_comparaison["ResNet (%)"], 
+                                     x=df_comparaison["Précision ResNet (%)"], 
                                      orientation='h', name="ResNet", marker_color='blue'))
 
         fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
-                                     x=df_comparaison["ConvNeXt (%)"], 
+                                     x=df_comparaison["Précision ConvNeXt (%)"], 
                                      orientation='h', name="ConvNeXt", marker_color='orange'))
 
         fig_classes.update_layout(title="🎯 Comparaison de la Précision des Pixels par Classe",
