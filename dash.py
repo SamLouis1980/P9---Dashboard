@@ -462,6 +462,39 @@ if page == "Résultats des modèles":
         })
         st.dataframe(pixel_acc_table, use_container_width=True)
 
+    st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
+
+    # Fusionner les DataFrames sur la colonne "Classe"
+    df_comparaison = pd.merge(df_resnet[['Classe', 'Précision (%)']], 
+                              df_convnext[['Classe', 'Précision (%)']], 
+                              on="Classe", suffixes=(" ResNet", " ConvNeXt"))
+
+    # Renommer les colonnes
+    df_comparaison.rename(columns={"Précision (%) ResNet": "ResNet (%)",
+                                   "Précision (%) ConvNeXt": "ConvNeXt (%)"}, inplace=True)
+
+    # 📋 Afficher le tableau
+    st.markdown("### 📋 Précision par Classe")
+    st.dataframe(df_comparaison, use_container_width=True)
+
+    # 📊 Graphique en barres comparatif
+    fig_classes = go.Figure()
+
+    fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
+                                 x=df_comparaison["ResNet (%)"], 
+                                 orientation='h', name="ResNet", marker_color='blue'))
+
+    fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
+                                 x=df_comparaison["ConvNeXt (%)"], 
+                                 orientation='h', name="ConvNeXt", marker_color='orange'))
+
+    fig_classes.update_layout(title="🎯 Comparaison de la Précision des Pixels par Classe",
+                              xaxis_title="Précision (%)", yaxis_title="Classes",
+                              barmode="group")  # Affichage côte à côte
+
+    st.plotly_chart(fig_classes)
+
+
 # Page Test des modèles
 if page == "Test des modèles":
     st.title("Test de Segmentation avec les Modèles")
