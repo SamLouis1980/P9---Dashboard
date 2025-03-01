@@ -432,17 +432,33 @@ if page == "Résultats des modèles":
 
     with col1:
         fig_pixels = go.Figure()
-        fig_pixels.add_trace(go.Bar(y=["ResNet"], x=[resnet_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ResNet", marker_color='blue'))
-        fig_pixels.add_trace(go.Bar(y=["ConvNeXt"], x=[convnext_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ConvNeXt", marker_color='orange'))
+        fig_pixels.add_trace(go.Bar(
+            y=["ResNet"], 
+            x=[resnet_pixel["Précision (%)"].values[0]], 
+            orientation='h', 
+            name="ResNet", 
+            marker_color='blue'
+        ))
+        fig_pixels.add_trace(go.Bar(
+            y=["ConvNeXt"], 
+            x=[convnext_pixel["Précision (%)"].values[0]], 
+            orientation='h', 
+            name="ConvNeXt", 
+            marker_color='orange'
+        ))
 
-        fig_pixels.update_layout(title="Précision des Pixels Classifiés Correctement (%)", xaxis_title="Précision (%)", yaxis_title="")
+        fig_pixels.update_layout(
+            title="Précision des Pixels Classifiés Correctement (%)", 
+            xaxis_title="Précision (%)", 
+            yaxis_title=""
+        )
         st.plotly_chart(fig_pixels)
 
     with col2:
         st.markdown("### 📋 Valeurs Numériques")
         pixel_acc_table = pd.DataFrame({
             "Modèle": ["ResNet", "ConvNeXt"],
-            "Précision des Pixels (%)": [resnet_pixel["Pixel Accuracy"].values[0], convnext_pixel["Pixel Accuracy"].values[0]]
+            "Précision des Pixels (%)": [resnet_pixel["Précision (%)"].values[0], convnext_pixel["Précision (%)"].values[0]]
         })
         st.dataframe(pixel_acc_table, use_container_width=True)
 
