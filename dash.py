@@ -344,29 +344,38 @@ if page == "Résultats des modèles":
         ["Loss", "IoU Score", "Dice Score"]
     )
 
-    # 📈 Création du graphique selon la métrique choisie
-    fig = go.Figure()
+    # 📈 Affichage du graphique et tableau côte à côte
+    col1, col2 = st.columns([2, 1])
 
-    if metric_choice == "Loss":
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train Loss"], mode='lines', name='ResNet - Train Loss'))
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val Loss"], mode='lines', name='ResNet - Validation Loss'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train Loss"], mode='lines', name='ConvNeXt - Train Loss'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val Loss"], mode='lines', name='ConvNeXt - Validation Loss'))
+    with col1:
+        st.markdown(f"### 📈 Évolution de {metric_choice}")
 
-    elif metric_choice == "IoU Score":
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train IoU"], mode='lines', name='ResNet - Train IoU'))
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val IoU"], mode='lines', name='ResNet - Validation IoU'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train IoU"], mode='lines', name='ConvNeXt - Train IoU'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val IoU"], mode='lines', name='ConvNeXt - Validation IoU'))
+        # 📈 Création du graphique selon la métrique choisie
+        fig = go.Figure()
 
-    elif metric_choice == "Dice Score":
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train Dice"], mode='lines', name='ResNet - Train Dice'))
-        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val Dice"], mode='lines', name='ResNet - Validation Dice'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train Dice"], mode='lines', name='ConvNeXt - Train Dice'))
-        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val Dice"], mode='lines', name='ConvNeXt - Validation Dice'))
+        metric_map = {
+            "Loss": ["Train Loss", "Val Loss"],
+            "IoU Score": ["Train IoU", "Val IoU"],
+            "Dice Score": ["Train Dice", "Val Dice"]
+        }
+        train_metric, val_metric = metric_map[metric_choice]
 
-    fig.update_layout(title=f"Évolution de la {metric_choice} au fil des epochs", xaxis_title="Epochs", yaxis_title=metric_choice)
-    st.plotly_chart(fig)
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results[train_metric], mode='lines', name=f'ResNet - {train_metric}'))
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results[val_metric], mode='lines', name=f'ResNet - {val_metric}'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results[train_metric], mode='lines', name=f'ConvNeXt - {train_metric}'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results[val_metric], mode='lines', name=f'ConvNeXt - {val_metric}'))
+
+        fig.update_layout(xaxis_title="Epochs", yaxis_title=metric_choice)
+        st.plotly_chart(fig)
+
+    with col2:
+        st.markdown("### 📋 Valeurs Numériques")
+        df_display = pd.DataFrame({
+            "Epoch": resnet_results["Epoch"],
+            f"ResNet {metric_choice}": resnet_results[val_metric],
+            f"ConvNeXt {metric_choice}": convnext_results[val_metric]
+        })
+        st.dataframe(df_display, use_container_width=True)
 
     # 📋 2️⃣ Tableau des performances finales
     st.subheader("📋 Comparaison des Scores Finaux")
@@ -393,17 +402,43 @@ if page == "Résultats des modèles":
                                      .applymap(lambda val: highlight_best(val, "Dice Score", best_dice), subset=["Dice Score"])\
                                      .applymap(lambda val: highlight_best(val, "Loss", best_loss), subset=["Loss"])
 
-    st.dataframe(styled_table)
+    # 📈 Graphique + Tableau des performances finales côte à côte
+    col1, col2 = st.columns([2, 1])
+
+    with col1:
+        st.markdown("### 📊 Histogramme des Scores Finaux")
+        fig_final = go.Figure()
+        fig_final.add_trace(go.Bar(name="IoU", x=["ResNet", "ConvNeXt"], y=final_scores["IoU"], marker_color="blue"))
+        fig_final.add_trace(go.Bar(name="Dice Score", x=["ResNet", "ConvNeXt"], y=final_scores["Dice Score"], marker_color="green"))
+        fig_final.add_trace(go.Bar(name="Loss", x=["ResNet", "ConvNeXt"], y=final_scores["Loss"], marker_color="red"))
+
+        fig_final.update_layout(barmode='group', title="Comparaison des Scores Finaux", xaxis_title="Modèle", yaxis_title="Score")
+        st.plotly_chart(fig_final)
+
+    with col2:
+        st.markdown("### 📋 Tableau récapitulatif des scores")
+        st.dataframe(styled_table)
 
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("🎯 Précision des Pixels Classifiés Correctement")
 
-    fig = go.Figure()
-    fig.add_trace(go.Bar(y=["ResNet"], x=[resnet_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ResNet", marker_color='blue'))
-    fig.add_trace(go.Bar(y=["ConvNeXt"], x=[convnext_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ConvNeXt", marker_color='orange'))
+    col1, col2 = st.columns([2, 1])
 
-    fig.update_layout(title="Précision des Pixels Classifiés Correctement (%)", xaxis_title="Précision (%)", yaxis_title="")
-    st.plotly_chart(fig)
+    with col1:
+        fig_pixels = go.Figure()
+        fig_pixels.add_trace(go.Bar(y=["ResNet"], x=[resnet_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ResNet", marker_color='blue'))
+        fig_pixels.add_trace(go.Bar(y=["ConvNeXt"], x=[convnext_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ConvNeXt", marker_color='orange'))
+
+        fig_pixels.update_layout(title="Précision des Pixels Classifiés Correctement (%)", xaxis_title="Précision (%)", yaxis_title="")
+        st.plotly_chart(fig_pixels)
+
+    with col2:
+        st.markdown("### 📋 Valeurs Numériques")
+        pixel_acc_table = pd.DataFrame({
+            "Modèle": ["ResNet", "ConvNeXt"],
+            "Précision des Pixels (%)": [resnet_pixel["Pixel Accuracy"].values[0], convnext_pixel["Pixel Accuracy"].values[0]]
+        })
+        st.dataframe(pixel_acc_table, use_container_width=True)
 
 # Page Test des modèles
 if page == "Test des modèles":
