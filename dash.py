@@ -321,7 +321,6 @@ if page == "EDA":
     with col2:
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
-# Page Résultats des modèles
 # 📌 Page Résultats des modèles
 if page == "Résultats des modèles":
     st.title("📊 Analyse des Résultats des Modèles")
