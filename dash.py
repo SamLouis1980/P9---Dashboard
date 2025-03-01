@@ -431,8 +431,10 @@ if page == "Résultats des modèles":
     # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
     @st.cache_data
     def load_pixel_data():
-        df_resnet = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv")
-        df_convnext = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv")
+        df_resnet = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv",
+        encoding="ISO-8859-1")
+        df_convnext = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv",
+        encoding="ISO-8859-1")
         return df_resnet, df_convnext
 
     # 📌 Chargement des DataFrames depuis GCS
