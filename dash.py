@@ -426,50 +426,30 @@ if page == "Résultats des modèles":
         st.dataframe(final_scores_display)
 
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
-    st.subheader("🎯 Précision des Pixels Classifiés Correctement")
-
-    col1, col2 = st.columns([2, 1])
-
-    with col1:
-        fig_pixels = go.Figure()
-        fig_pixels.add_trace(go.Bar(
-            y=["ResNet"], 
-            x=[resnet_pixel["Précision (%)"].values[0]], 
-            orientation='h', 
-            name="ResNet", 
-            marker_color='blue'
-        ))
-        fig_pixels.add_trace(go.Bar(
-            y=["ConvNeXt"], 
-            x=[convnext_pixel["Précision (%)"].values[0]], 
-            orientation='h', 
-            name="ConvNeXt", 
-            marker_color='orange'
-        ))
-
-        fig_pixels.update_layout(
-            title="Précision des Pixels Classifiés Correctement (%)", 
-            xaxis_title="Précision (%)", 
-            yaxis_title=""
-        )
-        st.plotly_chart(fig_pixels)
-
-    with col2:
-        st.markdown("### 📋 Valeurs Numériques")
-        pixel_acc_table = pd.DataFrame({
-            "Modèle": ["ResNet", "ConvNeXt"],
-            "Précision des Pixels (%)": [resnet_pixel["Précision (%)"].values[0], convnext_pixel["Précision (%)"].values[0]]
-        })
-        st.dataframe(pixel_acc_table, use_container_width=True)
-
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
+
+    # 📌 Charger les fichiers CSV des pixels prédits depuis Google Cloud Storage
+    @st.cache_data
+    def load_pixel_data():
+        """Charge les fichiers CSV des pixels correctement prédits par classe."""
+        resnet_pixel_path = "https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv"
+        convnext_pixel_path = "https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv"
+
+        # Lire les fichiers CSV
+        df_resnet = pd.read_csv(resnet_pixel_path, encoding="ISO-8859-1")  # Corrige l'encodage si UTF-8 pose problème
+        df_convnext = pd.read_csv(convnext_pixel_path, encoding="ISO-8859-1")
+
+        return df_resnet, df_convnext
+
+    # Charger les données des pixels
+    df_resnet, df_convnext = load_pixel_data()
 
     # Fusionner les DataFrames sur la colonne "Classe"
     df_comparaison = pd.merge(df_resnet[['Classe', 'Précision (%)']], 
                               df_convnext[['Classe', 'Précision (%)']], 
                               on="Classe", suffixes=(" ResNet", " ConvNeXt"))
 
-    # Renommer les colonnes
+    # Renommer les colonnes pour un affichage clair
     df_comparaison.rename(columns={"Précision (%) ResNet": "ResNet (%)",
                                    "Précision (%) ConvNeXt": "ConvNeXt (%)"}, inplace=True)
 
