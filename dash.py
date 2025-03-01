@@ -443,8 +443,8 @@ if page == "Résultats des modèles":
     # 📌 Création du DataFrame comparatif des performances par classe
     df_comparaison = pd.DataFrame({
         "Classe": df_resnet["Classe"],
-        "Précision ResNet (%)": df_resnet["Précision (%)"],
-        "Précision ConvNeXt (%)": df_convnext["Précision (%)"]
+        "Précision ResNet (%)": df_resnet["Precision (%)"],
+        "Précision ConvNeXt (%)": df_convnext["Precision (%)"]
     })
 
     # 📌 Disposition en colonnes (graphique à gauche, tableau à droite)
