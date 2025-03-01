@@ -382,41 +382,50 @@ if page == "Résultats des modèles":
 
     # 📌 Création du DataFrame avec les scores finaux
     final_scores = pd.DataFrame({
-        "Modèle": ["ResNet", "ConvNeXt"],
-        "IoU": [resnet_results["Val IoU"].iloc[-1], convnext_results["Val IoU"].iloc[-1]],
-        "Dice Score": [resnet_results["Val Dice"].iloc[-1], convnext_results["Val Dice"].iloc[-1]],
-        "Loss": [resnet_results["Val Loss"].iloc[-1], convnext_results["Val Loss"].iloc[-1]]
+        "Métrique": ["IoU", "Dice Score", "Loss"],
+        "ResNet": [resnet_results["Val IoU"].iloc[-1], resnet_results["Val Dice"].iloc[-1], resnet_results["Val Loss"].iloc[-1]],
+        "ConvNeXt": [convnext_results["Val IoU"].iloc[-1], convnext_results["Val Dice"].iloc[-1], convnext_results["Val Loss"].iloc[-1]]
     })
 
-    # Mise en forme : coloration du meilleur score
-    best_iou = final_scores["IoU"].idxmax()
-    best_dice = final_scores["Dice Score"].idxmax()
-    best_loss = final_scores["Loss"].idxmin()
-
-    def highlight_best(val, column, best_index):
-        if val == final_scores[column][best_index]:
-            return 'font-weight: bold; color: green'
-        return ''
-
-    styled_table = final_scores.style.applymap(lambda val: highlight_best(val, "IoU", best_iou), subset=["IoU"])\
-                                     .applymap(lambda val: highlight_best(val, "Dice Score", best_dice), subset=["Dice Score"])\
-                                     .applymap(lambda val: highlight_best(val, "Loss", best_loss), subset=["Loss"])
-
-    # 📈 Graphique + Tableau des performances finales côte à côte
+    # 📈 Graphique + Tableau côte à côte
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("### 📊 Histogramme des Scores Finaux")
+        st.markdown("### 📊 Comparaison des Modèles sur les Scores Finaux")
+    
+        # 🔹 Création d'un **seul** histogramme groupé
         fig_final = go.Figure()
-        fig_final.add_trace(go.Bar(name="IoU", x=["ResNet", "ConvNeXt"], y=final_scores["IoU"], marker_color="blue"))
-        fig_final.add_trace(go.Bar(name="Dice Score", x=["ResNet", "ConvNeXt"], y=final_scores["Dice Score"], marker_color="green"))
-        fig_final.add_trace(go.Bar(name="Loss", x=["ResNet", "ConvNeXt"], y=final_scores["Loss"], marker_color="red"))
+    
+        fig_final.add_trace(go.Bar(name="ResNet", x=final_scores["Métrique"], y=final_scores["ResNet"], marker_color="blue"))
+        fig_final.add_trace(go.Bar(name="ConvNeXt", x=final_scores["Métrique"], y=final_scores["ConvNeXt"], marker_color="orange"))
 
-        fig_final.update_layout(barmode='group', title="Comparaison des Scores Finaux", xaxis_title="Modèle", yaxis_title="Score")
+        fig_final.update_layout(
+            barmode='group', 
+            title="Comparaison des Scores Finaux entre ResNet et ConvNeXt", 
+            xaxis_title="Métrique", 
+            yaxis_title="Score",
+            legend_title="Modèle"
+        )
+    
         st.plotly_chart(fig_final)
 
     with col2:
         st.markdown("### 📋 Tableau récapitulatif des scores")
+        # Coloration de la meilleure valeur par métrique
+        best_iou = final_scores["ResNet"].iloc[0] > final_scores["ConvNeXt"].iloc[0]
+        best_dice = final_scores["ResNet"].iloc[1] > final_scores["ConvNeXt"].iloc[1]
+        best_loss = final_scores["ResNet"].iloc[2] < final_scores["ConvNeXt"].iloc[2]  # Loss plus petite = meilleure
+
+        def highlight_best(val, is_best):
+            return 'font-weight: bold; color: green' if is_best else ''
+
+        styled_table = final_scores.style.applymap(lambda val: highlight_best(val, best_iou), subset=["ResNet"], axis=0)\
+                                         .applymap(lambda val: highlight_best(val, not best_iou), subset=["ConvNeXt"], axis=0)\
+                                         .applymap(lambda val: highlight_best(val, best_dice), subset=["ResNet"], axis=0)\
+                                         .applymap(lambda val: highlight_best(val, not best_dice), subset=["ConvNeXt"], axis=0)\
+                                         .applymap(lambda val: highlight_best(val, best_loss), subset=["ResNet"], axis=0)\
+                                         .applymap(lambda val: highlight_best(val, not best_loss), subset=["ConvNeXt"], axis=0)
+
         st.dataframe(styled_table)
 
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
