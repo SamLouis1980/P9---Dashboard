@@ -322,58 +322,89 @@ if page == "EDA":
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
 # Page Résultats des modèles
-@st.cache_data
-def load_results():
-    fpn_results = pd.read_csv(f"https://storage.googleapis.com/{BUCKET_NAME}/Resultats/fpn_results.csv")
-    mask2former_results = pd.read_csv(f"https://storage.googleapis.com/{BUCKET_NAME}/Resultats/mask2former_results.csv")
-    return fpn_results, mask2former_results
-
-fpn_results, mask2former_results = load_results()
-
+# 📌 Page Résultats des modèles
 if page == "Résultats des modèles":
-    st.title("Analyse des Résultats des Modèles")
+    st.title("📊 Analyse des Résultats des Modèles")
 
+    # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
+    @st.cache_data
+    def load_results():
+        resnet_results = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_results.csv")
+        convnext_results = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_results.csv")
+        resnet_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv")
+        convnext_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixel.csv")
+        return resnet_results, convnext_results, resnet_pixel, convnext_pixel
+
+    # 📌 Chargement des données
+    resnet_results, convnext_results, resnet_pixel, convnext_pixel = load_results()
+
+    # 📊 1️⃣ Sélecteur interactif des métriques
+    st.subheader("📊 Courbes d'Apprentissage")
+    metric_choice = st.selectbox(
+        "Sélectionnez une métrique :", 
+        ["Loss", "IoU Score", "Dice Score"]
+    )
+
+    # 📈 Création du graphique selon la métrique choisie
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val Loss"], mode='lines', name='FPN - Validation Loss'))
-    fig.add_trace(go.Scatter(x=fpn_results["Epoch"], y=fpn_results["Val IoU"], mode='lines', name='FPN - Validation IoU Score'))
-    fig.add_trace(go.Scatter(x=mask2former_results["Epoch"], y=mask2former_results["Val Loss"], mode='lines', name='Mask2Former - Validation Loss'))
-    fig.add_trace(go.Scatter(x=mask2former_results["Epoch"], y=mask2former_results["Val IoU"], mode='lines', name='Mask2Former - Validation IoU Score'))
 
+    if metric_choice == "Loss":
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train Loss"], mode='lines', name='ResNet - Train Loss'))
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val Loss"], mode='lines', name='ResNet - Validation Loss'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train Loss"], mode='lines', name='ConvNeXt - Train Loss'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val Loss"], mode='lines', name='ConvNeXt - Validation Loss'))
+
+    elif metric_choice == "IoU Score":
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train IoU"], mode='lines', name='ResNet - Train IoU'))
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val IoU"], mode='lines', name='ResNet - Validation IoU'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train IoU"], mode='lines', name='ConvNeXt - Train IoU'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val IoU"], mode='lines', name='ConvNeXt - Validation IoU'))
+
+    elif metric_choice == "Dice Score":
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Train Dice"], mode='lines', name='ResNet - Train Dice'))
+        fig.add_trace(go.Scatter(x=resnet_results["Epoch"], y=resnet_results["Val Dice"], mode='lines', name='ResNet - Validation Dice'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Train Dice"], mode='lines', name='ConvNeXt - Train Dice'))
+        fig.add_trace(go.Scatter(x=convnext_results["Epoch"], y=convnext_results["Val Dice"], mode='lines', name='ConvNeXt - Validation Dice'))
+
+    fig.update_layout(title=f"Évolution de la {metric_choice} au fil des epochs", xaxis_title="Epochs", yaxis_title=metric_choice)
     st.plotly_chart(fig)
 
-def run_segmentation(tensor_image, original_size):
-    """Exécute la segmentation avec les deux modèles en parallèle et met à jour l'interface."""
-    print("Début de la segmentation...")  # Debug
-    st.session_state.processing = True  
+    # 📋 2️⃣ Tableau des performances finales
+    st.subheader("📋 Comparaison des Scores Finaux")
 
-    with torch.no_grad():
-        # FPN (FP32)
-        output_fpn = fpn_model(tensor_image)
-        mask_fpn = torch.argmax(output_fpn, dim=1).squeeze().cpu().numpy()
-        mask_fpn_colorized = resize_and_colorize_mask(mask_fpn, original_size, CLASS_COLORS)
+    # 📌 Création du DataFrame avec les scores finaux
+    final_scores = pd.DataFrame({
+        "Modèle": ["ResNet", "ConvNeXt"],
+        "IoU": [resnet_results["Val IoU"].iloc[-1], convnext_results["Val IoU"].iloc[-1]],
+        "Dice Score": [resnet_results["Val Dice"].iloc[-1], convnext_results["Val Dice"].iloc[-1]],
+        "Loss": [resnet_results["Val Loss"].iloc[-1], convnext_results["Val Loss"].iloc[-1]]
+    })
 
-        # ConvNeXt (FP16)
-        output_convnext = convnext_model(tensor_image.half())
-        mask_convnext = torch.argmax(output_convnext, dim=1).squeeze().cpu().numpy()
-        mask_convnext_colorized = resize_and_colorize_mask(mask_convnext, original_size, CLASS_COLORS)
+    # Mise en forme : coloration du meilleur score
+    best_iou = final_scores["IoU"].idxmax()
+    best_dice = final_scores["Dice Score"].idxmax()
+    best_loss = final_scores["Loss"].idxmin()
 
-    # Stocker les résultats
-    st.session_state.segmentation_fpn = mask_fpn_colorized
-    st.session_state.segmentation_convnext = mask_convnext_colorized
-    st.session_state.processing = False
+    def highlight_best(val, column, best_index):
+        if val == final_scores[column][best_index]:
+            return 'font-weight: bold; color: green'
+        return ''
 
-    print("Segmentation terminée.")  # Debug
+    styled_table = final_scores.style.applymap(lambda val: highlight_best(val, "IoU", best_iou), subset=["IoU"])\
+                                     .applymap(lambda val: highlight_best(val, "Dice Score", best_dice), subset=["Dice Score"])\
+                                     .applymap(lambda val: highlight_best(val, "Loss", best_loss), subset=["Loss"])
 
-    # Forcer la mise à jour de l'interface
-    time.sleep(0.5)  # Petit délai pour éviter une mise à jour trop rapide
-    st.rerun()
+    st.dataframe(styled_table)
 
-# Initialisation des variables dans session_state si elles n'existent pas encore
-if "segmentation_fpn" not in st.session_state:
-    st.session_state.segmentation_fpn = None
+    # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
+    st.subheader("🎯 Précision des Pixels Classifiés Correctement")
 
-if "segmentation_convnext" not in st.session_state:
-    st.session_state.segmentation_convnext = None
+    fig = go.Figure()
+    fig.add_trace(go.Bar(y=["ResNet"], x=[resnet_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ResNet", marker_color='blue'))
+    fig.add_trace(go.Bar(y=["ConvNeXt"], x=[convnext_pixel["Pixel Accuracy"].values[0]], orientation='h', name="ConvNeXt", marker_color='orange'))
+
+    fig.update_layout(title="Précision des Pixels Classifiés Correctement (%)", xaxis_title="Précision (%)", yaxis_title="")
+    st.plotly_chart(fig)
 
 # Page Test des modèles
 if page == "Test des modèles":
