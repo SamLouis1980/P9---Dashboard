@@ -332,7 +332,7 @@ if page == "Résultats des modèles":
         resnet_results = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_results.csv")
         convnext_results = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_results.csv")
         resnet_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv")
-        convnext_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixel.csv")
+        convnext_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv")
         return resnet_results, convnext_results, resnet_pixel, convnext_pixel
 
     # 📌 Chargement des données
