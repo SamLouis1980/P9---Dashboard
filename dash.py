@@ -428,6 +428,13 @@ if page == "Résultats des modèles":
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
 
+    # Création du DataFrame comparatif des performances par classe
+    df_comparaison = pd.DataFrame({
+        "Classe": df_resnet["Classe"],
+        "Précision ResNet (%)": df_resnet["Précision (%)"],
+        "Précision ConvNeXt (%)": df_convnext["Précision (%)"]
+    })
+
     # 📌 Disposition en colonnes
     col1, col2 = st.columns([2, 1])  # Largeur 2/3 pour le graphique, 1/3 pour le tableau
 
