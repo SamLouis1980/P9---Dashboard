@@ -428,51 +428,31 @@ if page == "Résultats des modèles":
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
 
-    # 📌 Charger les fichiers CSV des pixels prédits depuis Google Cloud Storage
-    @st.cache_data
-    def load_pixel_data():
-        """Charge les fichiers CSV des pixels correctement prédits par classe."""
-        resnet_pixel_path = "https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv"
-        convnext_pixel_path = "https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv"
+    # 📌 Disposition en colonnes
+    col1, col2 = st.columns([2, 1])  # Largeur 2/3 pour le graphique, 1/3 pour le tableau
 
-        # Lire les fichiers CSV
-        df_resnet = pd.read_csv(resnet_pixel_path, encoding="ISO-8859-1")  # Corrige l'encodage si UTF-8 pose problème
-        df_convnext = pd.read_csv(convnext_pixel_path, encoding="ISO-8859-1")
+    with col1:
+        # 📊 Graphique en barres comparatif
+        fig_classes = go.Figure()
 
-        return df_resnet, df_convnext
+        fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
+                                     x=df_comparaison["ResNet (%)"], 
+                                     orientation='h', name="ResNet", marker_color='blue'))
 
-    # Charger les données des pixels
-    df_resnet, df_convnext = load_pixel_data()
+        fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
+                                     x=df_comparaison["ConvNeXt (%)"], 
+                                     orientation='h', name="ConvNeXt", marker_color='orange'))
 
-    # Fusionner les DataFrames sur la colonne "Classe"
-    df_comparaison = pd.merge(df_resnet[['Classe', 'Précision (%)']], 
-                              df_convnext[['Classe', 'Précision (%)']], 
-                              on="Classe", suffixes=(" ResNet", " ConvNeXt"))
+        fig_classes.update_layout(title="🎯 Comparaison de la Précision des Pixels par Classe",
+                                  xaxis_title="Précision (%)", yaxis_title="Classes",
+                                  barmode="group")  # Affichage côte à côte
 
-    # Renommer les colonnes pour un affichage clair
-    df_comparaison.rename(columns={"Précision (%) ResNet": "ResNet (%)",
-                                   "Précision (%) ConvNeXt": "ConvNeXt (%)"}, inplace=True)
+        st.plotly_chart(fig_classes, use_container_width=True)
 
-    # 📋 Afficher le tableau
-    st.markdown("### 📋 Précision par Classe")
-    st.dataframe(df_comparaison, use_container_width=True)
-
-    # 📊 Graphique en barres comparatif
-    fig_classes = go.Figure()
-
-    fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
-                                 x=df_comparaison["ResNet (%)"], 
-                                 orientation='h', name="ResNet", marker_color='blue'))
-
-    fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
-                                 x=df_comparaison["ConvNeXt (%)"], 
-                                 orientation='h', name="ConvNeXt", marker_color='orange'))
-
-    fig_classes.update_layout(title="🎯 Comparaison de la Précision des Pixels par Classe",
-                              xaxis_title="Précision (%)", yaxis_title="Classes",
-                              barmode="group")  # Affichage côte à côte
-
-    st.plotly_chart(fig_classes)
+    with col2:
+        # 📋 Tableau des scores
+        st.markdown("### 📋 Précision par Classe")
+        st.dataframe(df_comparaison, use_container_width=True)
 
 
 # Page Test des modèles
