@@ -293,6 +293,8 @@ if page == "Analyse exploratoire":
 if page == "Résultats des modèles":
     st.title("📊 Analyse des Résultats des Modèles")
 
+    st.markdown("---")
+
     # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
     @st.cache_data
     def load_results():
@@ -395,6 +397,8 @@ if page == "Résultats des modèles":
         # Affichage du tableau
         st.dataframe(final_scores_display)
 
+    st.markdown("---")
+    
     # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
     st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
 
@@ -443,6 +447,7 @@ if page == "Résultats des modèles":
         st.markdown("### 📋 Précision par Classe")
         st.dataframe(df_comparaison, use_container_width=True)
 
+    st.markdown("---")
 
 # Page Test des modèles
 if page == "Test des modèles":
