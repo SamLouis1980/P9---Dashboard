@@ -110,6 +110,8 @@ page = st.sidebar.radio(
 if page == "Accueil":
     st.title("🏠 Accueil du Dashboard")
     st.markdown("Bienvenue sur le tableau de bord d'analyse de segmentation.")
+
+    st.markdown("---")
     
     # 🔹 Création de la mise en page en 2x2 avec des colonnes
     col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
