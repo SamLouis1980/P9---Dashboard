@@ -21,6 +21,25 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
+st.markdown(
+    """
+    <style>
+        /* Supprimer les liens automatiques générés par Streamlit */
+        h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+            pointer-events: none;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Supprime les liens invisibles */
+        a.st-emotion-cache-1hii4x1 {
+            display: none !important;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # Initialisation des variables dans session_state si elles n'existent pas encore
 for var in ["overlay_fpn", "overlay_convnext"]:
     if var not in st.session_state:
