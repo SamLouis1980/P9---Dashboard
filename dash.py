@@ -117,6 +117,3 @@ elif page == "📈 Résultats des modèles":
     resultats_modeles()
 elif page == "🖼️ Test des modèles":
     test_modeles()
-
-    except Exception as e:
-        st.error(f"Erreur lors du chargement des images : {e}")
