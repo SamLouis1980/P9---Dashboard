@@ -24,44 +24,6 @@ st.set_page_config(layout="wide")
 # 🔹 Titre principal
 st.title("Dashboard")
 
-st.markdown(
-    """
-    <style>
-        /* Texte en noir sur fond blanc pour améliorer la lisibilité */
-        body {
-            color: black !important;
-            background-color: white !important;
-        }
-
-        /* Bordure noire autour de la sidebar */
-        .css-1d391kg {
-            border: 2px solid black !important;
-        }
-
-        /* Amélioration des contrastes pour les titres */
-        h1, h2, h3, h4, h5, h6 {
-            color: black !important;
-        }
-
-        /* Suppression des fonds sombres */
-        table {
-            background-color: white !important;
-            color: black !important;
-            border-radius: 10px;
-        }
-
-        /* Amélioration des boutons */
-        button {
-            background-color: #0000FF !important;
-            color: white !important;
-            border-radius: 5px;
-        }
-
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 # Initialisation des variables dans session_state si elles n'existent pas encore
 for var in ["overlay_fpn", "overlay_convnext"]:
     if var not in st.session_state:
