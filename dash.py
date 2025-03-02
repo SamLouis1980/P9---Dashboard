@@ -476,8 +476,9 @@ if page == "Test des modèles":
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
         # Bouton pour lancer la segmentation avec les deux modèles
-        if st.button("Lancer la segmentation"):
+        if st.button("Lancer la segmentation", help="Lance la segmentation de l'image sélectionnée avec les modèles FPN et ConvNeXt"):
             print("Bouton cliqué !")  # Debug
+
 
             # Réinitialiser les résultats précédents
             st.session_state.overlay_fpn = None
