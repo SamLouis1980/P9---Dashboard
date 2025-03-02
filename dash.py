@@ -110,6 +110,7 @@ st.sidebar.markdown(
     unsafe_allow_html=True
 )
 page = st.sidebar.radio(
+    "Navigation",
     ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
 )
 
