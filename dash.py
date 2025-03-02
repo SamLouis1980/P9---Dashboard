@@ -255,7 +255,7 @@ if page == "Analyse exploratoire":
     st.markdown("---")
     
     # 🔹 Affichage du carrousel interactif des images et masques
-    st.markdown("### 🎠 Exemples d'Images et Masques Segmentés")
+    st.markdown("### Exemples d'Images et Masques Segmentés")
     
     # Sélecteur d’image avec un slider
     img_index = st.slider("Sélectionnez une image :", min_value=0, max_value=len(image_urls)-1, value=0)
@@ -268,15 +268,15 @@ if page == "Analyse exploratoire":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(image, caption="📸 Image originale", use_container_width=True)
+        st.image(image, caption="Image originale", use_container_width=True)
 
     with col2:
-        st.image(mask, caption="🎭 Masque segmenté", use_container_width=True)
+        st.image(mask, caption="Masque segmenté", use_container_width=True)
 
     st.markdown("---")
     
     # 🔹 Affichage du carrousel interactif des images augmentées
-    st.markdown("### 🎭 Effets de la Data Augmentation")
+    st.markdown("### Effets de la Data Augmentation")
 
     # 🔹 Sélecteur d’image avec un slider
     img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
@@ -289,10 +289,10 @@ if page == "Analyse exploratoire":
     col1, col2 = st.columns(2)
 
     with col1:
-        st.image(original_image, caption="📸 Image originale", use_container_width=True)
+        st.image(original_image, caption="Image originale", use_container_width=True)
 
     with col2:
-        st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
+        st.image(augmented_image, caption="🛠Image après Data Augmentation", use_container_width=True)
 
     st.markdown("---")
     
@@ -311,23 +311,23 @@ if page == "Résultats des modèles":
         convnext_pixel = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/convnext_pixels.csv")
         return resnet_results, convnext_results, resnet_pixel, convnext_pixel
 
-    # 📌 Chargement des données
+    # Chargement des données
     resnet_results, convnext_results, resnet_pixel, convnext_pixel = load_results()
 
-    # 📊 1️⃣ Sélecteur interactif des métriques
-    st.subheader("📊 Courbes d'Apprentissage")
+    # Sélecteur interactif des métriques
+    st.subheader("Courbes d'Apprentissage")
     metric_choice = st.selectbox(
         "Sélectionnez une métrique :", 
         ["Loss", "IoU Score", "Dice Score"]
     )
 
-    # 📈 Affichage du graphique et tableau côte à côte
+    # Affichage du graphique et tableau côte à côte
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown(f"### 📈 Évolution de {metric_choice}")
+        st.markdown(f"### Évolution de {metric_choice}")
 
-        # 📈 Création du graphique selon la métrique choisie
+        # Création du graphique selon la métrique choisie
         fig = go.Figure()
 
         metric_map = {
@@ -356,21 +356,21 @@ if page == "Résultats des modèles":
 
     st.markdown("---")
 
-    # 📋 2️⃣ Tableau des performances finales
+    # Tableau des performances finales
     st.subheader("📋 Comparaison des Scores Finaux")
 
-    # 📌 Création du DataFrame avec les scores finaux
+    # Création du DataFrame avec les scores finaux
     final_scores = pd.DataFrame({
         "Métrique": ["IoU", "Dice Score", "Loss"],
         "ResNet": [resnet_results["Val IoU"].iloc[-1], resnet_results["Val Dice"].iloc[-1], resnet_results["Val Loss"].iloc[-1]],
         "ConvNeXt": [convnext_results["Val IoU"].iloc[-1], convnext_results["Val Dice"].iloc[-1], convnext_results["Val Loss"].iloc[-1]]
     })
 
-    # 📈 Graphique + Tableau côte à côte
+    # Graphique + Tableau côte à côte
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("### 📊 Comparaison des Modèles sur les Scores Finaux")
+        st.markdown("### Comparaison des Modèles sur les Scores Finaux")
     
         # 🔹 Création d'un **seul** histogramme groupé
         fig_final = go.Figure()
@@ -406,10 +406,10 @@ if page == "Résultats des modèles":
 
     st.markdown("---")
     
-    # 📌 3️⃣ Histogramme du pourcentage de pixels bien classés
-    st.subheader("📌 Comparaison par Classe : Précision des Pixels Classifiés")
+    # Histogramme du pourcentage de pixels bien classés
+    st.subheader("Comparaison par Classe : Précision des Pixels Classifiés")
 
-    # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
+    # Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
     @st.cache_data
     def load_pixel_data():
         df_resnet = pd.read_csv("https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_pixel.csv",
@@ -418,21 +418,21 @@ if page == "Résultats des modèles":
         encoding="ISO-8859-1")
         return df_resnet, df_convnext
 
-    # 📌 Chargement des DataFrames depuis GCS
+    # Chargement des DataFrames depuis GCS
     df_resnet, df_convnext = load_pixel_data()
 
-    # 📌 Création du DataFrame comparatif des performances par classe
+    # Création du DataFrame comparatif des performances par classe
     df_comparaison = pd.DataFrame({
         "Classe": df_resnet["Classe"],
         "Précision ResNet (%)": df_resnet["Precision (%)"],
         "Précision ConvNeXt (%)": df_convnext["Precision (%)"]
     })
 
-    # 📌 Disposition en colonnes (graphique à gauche, tableau à droite)
+    # Disposition en colonnes (graphique à gauche, tableau à droite)
     col1, col2 = st.columns([2, 1])  # Largeur 2/3 pour le graphique, 1/3 pour le tableau
 
     with col1:
-        # 📊 Graphique en barres comparatif
+        # Graphique en barres comparatif
         fig_classes = go.Figure()
 
         fig_classes.add_trace(go.Bar(y=df_comparaison["Classe"], 
