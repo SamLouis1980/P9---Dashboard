@@ -122,7 +122,6 @@ if page == "Menu":
         st.markdown(
             """
             <div style="
-                background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
                 color: black;
@@ -138,7 +137,6 @@ if page == "Menu":
         st.markdown(
             """
             <div style="
-                background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
                 color: black;
@@ -160,7 +158,6 @@ if page == "Menu":
         st.markdown(
             """
             <div style="
-                background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
                 color: black;
@@ -175,7 +172,6 @@ if page == "Menu":
         st.markdown(
             """
             <div style="
-                background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
                 color: black;
