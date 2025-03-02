@@ -108,7 +108,7 @@ page = st.sidebar.radio(
 
 # Page Menu
 if page == "Accueil":
-    st.title("🏠 Accueil du Dashboard")
+    st.markdown("<h1 style='color: black;'>🏠 Accueil du Dashboard</h1>", unsafe_allow_html=True)
     st.markdown("Bienvenue sur le tableau de bord d'analyse de segmentation.")
 
     st.markdown("---")
