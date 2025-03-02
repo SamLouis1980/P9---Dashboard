@@ -296,7 +296,7 @@ if page == "Analyse exploratoire":
 
 # 📌 Page Résultats des modèles
 if page == "Résultats des modèles":
-    st.title("📊 Analyse des Résultats des Modèles")
+    st.title("📊Résultats des Modèles")
 
     st.markdown("---")
 
@@ -456,7 +456,7 @@ if page == "Résultats des modèles":
 
 # Page Test des modèles
 if page == "Test des modèles":
-    st.title("Test de Segmentation")
+    st.title("🖼️ Test de Segmentation")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
