@@ -137,7 +137,7 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Menu déroulant
-page = st.selectbox("", ["Menu", "EDA", "Résultats des modèles", "Test des modèles"], key="menu_selection", label_visibility="collapsed")
+page = st.selectbox("", ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"], key="menu_selection", label_visibility="collapsed")
 
 # Page Menu
 if page == "Menu":
@@ -222,7 +222,7 @@ mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
 if page == "EDA":
-    st.title("Exploratory Data Analysis (EDA)")
+    st.title("Analyse exploratoire des données")
 
     # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
     @st.cache_data
