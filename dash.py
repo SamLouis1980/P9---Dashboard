@@ -136,8 +136,8 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# 🔹 Menu déroulant
-page = st.selectbox("", ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"], key="menu_selection", label_visibility="collapsed")
+# 🔹 Menu dans la barre latérale
+page = st.sidebar.selectbox("Navigation", ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"], key="menu_selection")
 
 # Page Menu
 if page == "Menu":
