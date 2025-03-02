@@ -234,7 +234,7 @@ if page == "Analyse exploratoire":
     df_classes = load_class_distribution()
 
     # 🔹 Slider interactif pour choisir combien de classes afficher
-    num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=20, step=5)
+    num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=10, step=1)
     df_filtered = df_classes.head(num_classes)
 
     # 🔹 Titre unique pour l'ensemble des blocs
