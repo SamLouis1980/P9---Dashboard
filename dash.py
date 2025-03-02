@@ -101,10 +101,6 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Menu dans la barre latérale
-page = st.sidebar.radio(
-    "Navigation",
-    ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
-)
 st.sidebar.markdown(
     """
     <nav role="navigation" aria-label="Menu principal">
@@ -112,6 +108,9 @@ st.sidebar.markdown(
     </nav>
     """,
     unsafe_allow_html=True
+)
+page = st.sidebar.radio(
+    ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
 )
 
 # Page Menu
