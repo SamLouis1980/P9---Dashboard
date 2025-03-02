@@ -21,6 +21,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
+# essai pour enlever les liens invisibles qui sont un problème pour l'évaluation WCAG
 st.markdown(
     """
     <style>
