@@ -125,7 +125,7 @@ if page == "Menu":
                 background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
-                color: white;
+                color: black;
                 text-align: center;
                 margin-bottom: 5px;">
                 <h2>🏆 Présentation du projet</h2>
@@ -141,7 +141,7 @@ if page == "Menu":
                 background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
-                color: white;
+                color: black;
                 text-align: center;
                 margin-bottom: 5px;">
                 <h2>📊 Exploration des Données (EDA)</h2>
@@ -163,7 +163,7 @@ if page == "Menu":
                 background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
-                color: white;
+                color: black;
                 text-align: center;">
                 <h2>📈 Résultats des Modèles</h2>
                 <p>Comparaison des performances : <b>IoU, Dice Score</b>, et <b>courbes d'apprentissage</b> des modèles testés.</p>
@@ -178,7 +178,7 @@ if page == "Menu":
                 background-color: #2C2F33;
                 padding: 20px;
                 border-radius: 10px;
-                color: white;
+                color: black;
                 text-align: center;">
                 <h2>🖼️ Test des Modèles</h2>
                 <p>Testez la segmentation en direct : <b>sélectionnezz une image</b> et observez le résultat du modèle.</p>
@@ -222,7 +222,7 @@ if page == "Analyse exploratoire":
                 background-color: #2C2F33;
                 padding: 15px;
                 border-radius: 10px;
-                color: white;">
+                color: black;">
             """, unsafe_allow_html=True
         )
         st.dataframe(df_filtered, use_container_width=True)
@@ -235,7 +235,7 @@ if page == "Analyse exploratoire":
                 background-color: #2C2F33;
                 padding: 15px;
                 border-radius: 10px;
-                color: white;">
+                color: black;">
             """, unsafe_allow_html=True
         )
         # 🔹 Création du graphique interactif avec Plotly
