@@ -189,7 +189,7 @@ mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
 if page == "Analyse exploratoire":
-    st.title("Analyse exploratoire")
+    st.title("📊 Analyse exploratoire")
 
     # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
     @st.cache_data
@@ -203,7 +203,7 @@ if page == "Analyse exploratoire":
     st.markdown("---")
     
     # 🔹 Titre unique pour l'ensemble des blocs
-    st.markdown("### 📊 Distribution des Classes dans Cityscapes")
+    st.markdown("### Distribution des Classes dans Cityscapes")
     
     # 🔹 Slider interactif pour choisir combien de classes afficher
     num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=10, step=1)
