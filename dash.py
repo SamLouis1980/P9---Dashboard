@@ -294,6 +294,8 @@ if page == "Analyse exploratoire":
     with col2:
         st.image(augmented_image, caption="🛠️ Image après Data Augmentation", use_container_width=True)
 
+    st.markdown("---")
+    
 # 📌 Page Résultats des modèles
 if page == "Résultats des modèles":
     st.title("📊Résultats des Modèles")
