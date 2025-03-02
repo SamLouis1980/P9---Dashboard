@@ -137,7 +137,10 @@ if "processing" not in st.session_state:
     st.session_state.processing = False
 
 # 🔹 Menu dans la barre latérale
-page = st.sidebar.selectbox("Navigation", ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"], key="menu_selection")
+page = st.sidebar.radio(
+    "Navigation",
+    ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
+)
 
 # Page Menu
 if page == "Menu":
