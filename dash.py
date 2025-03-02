@@ -221,7 +221,7 @@ image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{img
 mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}" for mask in available_masks]
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
-if page == "EDA":
+if page == "Analyse exploratoire":
     st.title("Analyse exploratoire des données")
 
     # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
