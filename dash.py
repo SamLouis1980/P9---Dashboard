@@ -27,31 +27,36 @@ st.title("Dashboard")
 st.markdown(
     """
     <style>
-        /* Changer la couleur des titres */
+        /* Texte en noir sur fond blanc pour améliorer la lisibilité */
+        body {
+            color: black !important;
+            background-color: white !important;
+        }
+
+        /* Bordure noire autour de la sidebar */
+        .css-1d391kg {
+            border: 2px solid black !important;
+        }
+
+        /* Amélioration des contrastes pour les titres */
         h1, h2, h3, h4, h5, h6 {
-            color: #1E90FF !important;
+            color: black !important;
         }
 
-        /* Style des tableaux */
+        /* Suppression des fonds sombres */
         table {
-            background-color: #121212 !important;
-            color: #FFFFFF !important;
+            background-color: white !important;
+            color: black !important;
             border-radius: 10px;
         }
 
-        /* Style des images pour les rendre visibles */
-        img {
-            border-radius: 10px;
-            background-color: #000000;
-        }
-
-        /* Style des boutons */
+        /* Amélioration des boutons */
         button {
-            background-color: #1E90FF !important;
-            color: #FFFFFF !important;
+            background-color: #0000FF !important;
+            color: white !important;
             border-radius: 5px;
         }
-        
+
     </style>
     """,
     unsafe_allow_html=True
@@ -144,6 +149,8 @@ page = st.sidebar.radio(
 
 # Page Menu
 if page == "Menu":
+    st.title("🏠 Accueil du Dashboard")
+    st.markdown("Bienvenue sur le tableau de bord d'analyse de segmentation.")
     
     # 🔹 Création de la mise en page en 2x2 avec des colonnes
     col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
@@ -479,7 +486,7 @@ if page == "Résultats des modèles":
 
 # Page Test des modèles
 if page == "Test des modèles":
-    st.title("Test de Segmentation avec les Modèles")
+    st.title("Test de Segmentation")
 
     image_choice = st.selectbox("Choisissez une image à segmenter", available_images)
 
