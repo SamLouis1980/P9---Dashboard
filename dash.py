@@ -141,7 +141,7 @@ if page == "Accueil":
                 color: black;
                 text-align: center;
                 margin-bottom: 5px;">
-                <h2>📊 Exploration des Données (EDA)</h2>
+                <h2>📊 Analyse exploratoire</h2>
                 <p>Analyse du dataset Cityscapes : <b>distribution des classes</b>, visualisation des images, et effets de la <b>data augmentation</b>.</p>
             </div>
             """, unsafe_allow_html=True
