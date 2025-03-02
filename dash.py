@@ -345,7 +345,7 @@ if page == "Résultats des modèles":
         })
         st.dataframe(df_display, use_container_width=True)
 
-st.markdown("---")
+    st.markdown("---")
 
     # 📋 2️⃣ Tableau des performances finales
     st.subheader("📋 Comparaison des Scores Finaux")
