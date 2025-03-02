@@ -105,6 +105,14 @@ page = st.sidebar.radio(
     "Navigation",
     ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
 )
+st.sidebar.markdown(
+    """
+    <nav role="navigation" aria-label="Menu principal">
+        <h2 style="color: black;">📌 Navigation</h2>
+    </nav>
+    """,
+    unsafe_allow_html=True
+)
 
 # Page Menu
 if page == "Accueil":
