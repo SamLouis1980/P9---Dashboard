@@ -189,7 +189,7 @@ mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
 
 if page == "Analyse exploratoire":
-    st.title("Analyse exploratoire des données")
+    st.title("Analyse exploratoire")
 
     # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
     @st.cache_data
@@ -200,12 +200,14 @@ if page == "Analyse exploratoire":
 
     df_classes = load_class_distribution()
 
-    # 🔹 Slider interactif pour choisir combien de classes afficher
-    num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=10, step=1)
-    df_filtered = df_classes.head(num_classes)
-
+    st.markdown("---")
+    
     # 🔹 Titre unique pour l'ensemble des blocs
     st.markdown("### 📊 Distribution des Classes dans Cityscapes")
+    
+    # 🔹 Slider interactif pour choisir combien de classes afficher
+    num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=10, step=1)
+    df_filtered = df_classes.head(num_classes)    
 
     # 🔹 Affichage en 2 colonnes (tableau à gauche, graphique à droite)
     col1, col2 = st.columns(2)
@@ -250,6 +252,8 @@ if page == "Analyse exploratoire":
         st.plotly_chart(fig)
         st.markdown("</div>", unsafe_allow_html=True)
 
+    st.markdown("---")
+    
     # 🔹 Affichage du carrousel interactif des images et masques
     st.markdown("### 🎠 Exemples d'Images et Masques Segmentés")
     
@@ -269,6 +273,8 @@ if page == "Analyse exploratoire":
     with col2:
         st.image(mask, caption="🎭 Masque segmenté", use_container_width=True)
 
+    st.markdown("---")
+    
     # 🔹 Affichage du carrousel interactif des images augmentées
     st.markdown("### 🎭 Effets de la Data Augmentation")
 
