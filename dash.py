@@ -105,6 +105,12 @@ st.sidebar.markdown(
     """
     <nav role="navigation" aria-label="Menu principal">
         <h2 style="color: black;">📌 Navigation</h2>
+        <ul style="list-style-type: none; padding-left: 0;">
+            <li role="menuitem"><a href="?page=Menu">🏠 Accueil</a></li>
+            <li role="menuitem"><a href="?page=Analyse exploratoire">📊 Analyse exploratoire</a></li>
+            <li role="menuitem"><a href="?page=Résultats des modèles">📈 Résultats des modèles</a></li>
+            <li role="menuitem"><a href="?page=Test des modèles">🖼️ Test des modèles</a></li>
+        </ul>
     </nav>
     """,
     unsafe_allow_html=True
