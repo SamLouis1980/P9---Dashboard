@@ -21,9 +21,6 @@ warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 # 🔹 Configuration du layout
 st.set_page_config(layout="wide")
 
-# 🔹 Titre principal
-st.title("Dashboard")
-
 # Initialisation des variables dans session_state si elles n'existent pas encore
 for var in ["overlay_fpn", "overlay_convnext"]:
     if var not in st.session_state:
@@ -106,11 +103,11 @@ if "processing" not in st.session_state:
 # 🔹 Menu dans la barre latérale
 page = st.sidebar.radio(
     "Navigation",
-    ["Menu", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
+    ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
 )
 
 # Page Menu
-if page == "Menu":
+if page == "Accueil":
     st.title("🏠 Accueil du Dashboard")
     st.markdown("Bienvenue sur le tableau de bord d'analyse de segmentation.")
     
