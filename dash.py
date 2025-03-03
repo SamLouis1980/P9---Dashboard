@@ -491,7 +491,7 @@ if page == "Test des modèles":
         st.image(image, caption="Image d'entrée", use_container_width=True)
 
         # Prétraitement de l’image avant passage dans le modèle
-        input_size = (512, 512)
+        input_size = (256, 256)
         image_resized, original_size = preprocess_image(image, input_size)
         tensor_image = torch.tensor(image_resized).permute(0, 3, 1, 2).float()
 
