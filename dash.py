@@ -18,7 +18,7 @@ from utils import preprocess_image, resize_and_colorize_mask, FPN_Segmenter, FPN
 
 warnings.filterwarnings("ignore", category=UserWarning, module="torch")
 
-# 🔹 Configuration du layout
+# Configuration du layout
 st.set_page_config(layout="wide")
 
 # essai pour enlever les liens invisibles qui sont un problème pour l'évaluation WCAG
@@ -120,7 +120,7 @@ if "segmentation_result" not in st.session_state:
 if "processing" not in st.session_state:
     st.session_state.processing = False
 
-# 🔹 Menu dans la barre latérale
+# Menu dans la barre latérale
 page = st.sidebar.radio(
     "Navigation",
     ["Accueil", "Analyse exploratoire", "Résultats des modèles", "Test des modèles"]
@@ -133,10 +133,10 @@ if page == "Accueil":
 
     st.markdown("---")
     
-    # 🔹 Création de la mise en page en 2x2 avec des colonnes
+    # Création de la mise en page en 2x2 avec des colonnes
     col1, col2 = st.columns(2)  # 2 colonnes pour chaque ligne
 
-    # 🔹 Première ligne (Présentation du projet & EDA)
+    # Première ligne (Présentation du projet & EDA)
     with col1:
         st.markdown(
             """
@@ -201,9 +201,9 @@ if page == "Accueil":
             """, unsafe_allow_html=True
         )
     
-# 🔹 Page EDA
+# Page EDA
 
-# 🔹 Génération des URLs complètes des images et masques en utilisant les variables existantes
+# Génération des URLs complètes des images et masques en utilisant les variables existantes
 image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{IMAGE_FOLDER}/{img}" for img in available_images]
 mask_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/{MASK_FOLDER}/{mask}" for mask in available_masks]
 augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/transformed_images/{img.replace('_leftImg8bit.png', '_augmented.png')}" for img in available_images]
@@ -211,7 +211,7 @@ augmented_image_urls = [f"https://storage.googleapis.com/{BUCKET_NAME}/Dataset/t
 if page == "Analyse exploratoire":
     st.title("📊 Analyse exploratoire")
 
-    # 🔹 Chargement du fichier CSV depuis Google Cloud Storage
+    # Chargement du fichier CSV depuis Google Cloud Storage
     @st.cache_data
     def load_class_distribution():
         """Charge le fichier CSV contenant la distribution des classes."""
@@ -222,14 +222,14 @@ if page == "Analyse exploratoire":
 
     st.markdown("---")
     
-    # 🔹 Titre unique pour l'ensemble des blocs
+    # Titre unique pour l'ensemble des blocs
     st.markdown("### Distribution des Classes dans Cityscapes")
     
-    # 🔹 Slider interactif pour choisir combien de classes afficher
+    # Slider interactif pour choisir combien de classes afficher
     num_classes = st.slider("Nombre de classes à afficher :", min_value=10, max_value=34, value=10, step=1)
     df_filtered = df_classes.head(num_classes)    
 
-    # 🔹 Affichage en 2 colonnes (tableau à gauche, graphique à droite)
+    # Affichage en 2 colonnes (tableau à gauche, graphique à droite)
     col1, col2 = st.columns(2)
 
     with col1:
@@ -255,7 +255,7 @@ if page == "Analyse exploratoire":
                 color: black;">
             """, unsafe_allow_html=True
         )
-        # 🔹 Création du graphique interactif avec Plotly
+        # Création du graphique interactif avec Plotly
         import plotly.express as px
         fig = px.bar(
             df_filtered,
@@ -268,13 +268,13 @@ if page == "Analyse exploratoire":
         )
         fig.update_layout(xaxis_tickangle=-45)
 
-        # 🔹 Affichage du graphique interactif
+        # Affichage du graphique interactif
         st.plotly_chart(fig)
         st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown("---")
     
-    # 🔹 Affichage du carrousel interactif des images et masques
+    # Affichage du carrousel interactif des images et masques
     st.markdown("### Exemples d'Images et Masques Segmentés")
     
     # Sélecteur d’image avec un slider
@@ -295,17 +295,17 @@ if page == "Analyse exploratoire":
 
     st.markdown("---")
     
-    # 🔹 Affichage du carrousel interactif des images augmentées
+    # Affichage du carrousel interactif des images augmentées
     st.markdown("### Effets de la Data Augmentation")
 
-    # 🔹 Sélecteur d’image avec un slider
+    # Sélecteur d’image avec un slider
     img_index_aug = st.slider("Sélectionnez une image :", min_value=0, max_value=len(augmented_image_urls)-1, value=0, key="aug_slider")
 
     # Chargement des images sélectionnées
     original_image = Image.open(urllib.request.urlopen(image_urls[img_index_aug]))
     augmented_image = Image.open(urllib.request.urlopen(augmented_image_urls[img_index_aug]))
 
-    # 🔹 Affichage en deux colonnes équilibrées comme pour les masques
+    # Affichage en deux colonnes équilibrées comme pour les masques
     col1, col2 = st.columns(2)
 
     with col1:
@@ -316,13 +316,13 @@ if page == "Analyse exploratoire":
 
     st.markdown("---")
     
-# 📌 Page Résultats des modèles
+# Page Résultats des modèles
 if page == "Résultats des modèles":
     st.title("📊Résultats des Modèles")
 
     st.markdown("---")
 
-    # 📌 Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
+    # Chargement des fichiers CSV depuis Google Cloud Storage (GCS)
     @st.cache_data
     def load_results():
         resnet_results = pd.read_csv(f"https://storage.googleapis.com/p9-dashboard-storage/Resultats/resnet_results.csv")
@@ -390,7 +390,7 @@ if page == "Résultats des modèles":
     col1, col2 = st.columns([2, 1])
 
     with col1:
-        st.markdown("### Comparaison des Modèles sur les Scores Finaux")
+        st.markdown("### Histogramme des Scores Finaux")
     
         # 🔹 Création d'un **seul** histogramme groupé
         fig_final = go.Figure()
@@ -399,8 +399,7 @@ if page == "Résultats des modèles":
         fig_final.add_trace(go.Bar(name="ConvNeXt", x=final_scores["Métrique"], y=final_scores["ConvNeXt"], marker_color="orange"))
 
         fig_final.update_layout(
-            barmode='group', 
-            title="Comparaison des Scores Finaux entre ResNet et ConvNeXt", 
+            barmode='group',  
             xaxis_title="Métrique", 
             yaxis_title="Score",
             legend_title="Modèle"
