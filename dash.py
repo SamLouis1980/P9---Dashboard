@@ -167,10 +167,10 @@ if page == "Accueil":
             """, unsafe_allow_html=True
         )
 
-    # 🔹 Espacement entre les deux lignes
+    # Espacement entre les deux lignes
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # 🔹 Deuxième ligne (Résultats des modèles & Test des modèles)
+    # Deuxième ligne (Résultats des modèles & Test des modèles)
     col3, col4 = st.columns(2)  # Nouvelle ligne avec 2 colonnes
 
     with col3:
@@ -392,7 +392,7 @@ if page == "Résultats des modèles":
     with col1:
         st.markdown("### Histogramme des Scores Finaux")
     
-        # 🔹 Création d'un **seul** histogramme groupé
+        # Création d'un **seul** histogramme groupé
         fig_final = go.Figure()
     
         fig_final.add_trace(go.Bar(name="ResNet", x=final_scores["Métrique"], y=final_scores["ResNet"], marker_color="blue"))
