@@ -408,7 +408,7 @@ if page == "Résultats des modèles":
         st.plotly_chart(fig_final)
 
     with col2:
-        st.markdown("### 📋 Tableau récapitulatif des scores")
+        st.markdown("### 📋 Tableau récapitulatif")
 
         # Création d'une copie du DataFrame pour éviter les erreurs de modification
         final_scores_display = final_scores.copy()
@@ -462,15 +462,15 @@ if page == "Résultats des modèles":
                                      x=df_comparaison["Précision ConvNeXt (%)"], 
                                      orientation='h', name="ConvNeXt", marker_color='orange'))
 
-        fig_classes.update_layout(title="🎯 Comparaison de la Précision des Pixels par Classe",
+        fig_classes.update_layout(title="Histogramme de la Précision des Pixels par Classe",
                                   xaxis_title="Précision (%)", yaxis_title="Classes",
                                   barmode="group")  # Affichage côte à côte
 
         st.plotly_chart(fig_classes, use_container_width=True)
 
     with col2:
-        # 📋 Tableau des scores
-        st.markdown("### 📋 Précision par Classe")
+        # Tableau des scores
+        st.markdown("### 📋 Tableau récapitulatif")
         st.dataframe(df_comparaison, use_container_width=True)
 
     st.markdown("---")
