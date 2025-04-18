@@ -2,7 +2,7 @@ streamlit
 pandas
 matplotlib
 pillow
-torch==2.5.1
+torch==2.6.0
 torchvision==0.20.1
 timm
 transformers
